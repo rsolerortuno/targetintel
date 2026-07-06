@@ -5,9 +5,11 @@ This module combines:
 1. Open Targets melanoma target-disease association evidence
 2. Curated anti-PD-1 resistance-axis ontology annotations
 3. Stable rule-based translational role classification
+4. Modality-aware target reasoning
 
 The resulting table is the first TargetIntel-IO feature table used by
-downstream modality reasoning, scoring, benchmarking, and dashboard outputs.
+downstream evidence auditing, confidence scoring, intent-aware ranking,
+benchmarking, and dashboard outputs.
 """
 
 from __future__ import annotations
@@ -16,6 +18,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from targetintel.modality import annotate_modality_dataframe
 from targetintel.opentargets import get_melanoma_associated_targets
 from targetintel.resistance_ontology import annotate_dataframe
 from targetintel.role_classifier import classify_dataframe
@@ -47,7 +50,8 @@ def build_feature_table(
     -------
     pandas.DataFrame
         Feature table containing Open Targets association features,
-        resistance-axis ontology annotations, and stable role-classifier outputs.
+        resistance-axis ontology annotations, stable role-classifier outputs,
+        and modality-fit annotations.
     """
     opentargets_df = get_melanoma_associated_targets(
         page_size=page_size,
@@ -67,6 +71,14 @@ def build_feature_table(
         expected_role_column="expected_role_from_axis",
     )
 
+    feature_df = annotate_modality_dataframe(
+        feature_df,
+        gene_column="target_symbol",
+        role_column="role_classification",
+        therapeutic_direction_column="therapeutic_direction",
+        resistance_axis_column="resistance_axis",
+    )
+
     feature_df = add_initial_translational_features(feature_df)
 
     return feature_df
@@ -76,14 +88,14 @@ def add_initial_translational_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     Add simple first-pass translational features.
 
-    These features are intentionally conservative. More detailed modality
-    reasoning, evidence auditing, confidence scoring, and intent-aware ranking
-    will be implemented in separate modules.
+    These features are intentionally conservative. More detailed evidence
+    auditing, confidence scoring, novelty/crowding assessment, and
+    intent-aware ranking will be implemented in separate modules.
 
     Important:
-    role_classification and therapeutic_direction now come from
-    targetintel.role_classifier.classify_dataframe().
-    They should not be overwritten here.
+    - role_classification and therapeutic_direction come from role_classifier.py
+    - modality-fit columns come from modality.py
+    - this function must not overwrite those classifier outputs
     """
     df = df.copy()
 
@@ -107,24 +119,28 @@ def _make_initial_priority_note(row: pd.Series) -> str:
     axis = row.get("matched_resistance_programs", "")
     score = row.get("opentargets_score", None)
     role = row.get("role_classification", "unclear / low-confidence candidate")
+    best_modality = row.get("best_modality", "unclear")
 
     if row.get("resistance_axis") == "unmapped":
         return (
             f"{symbol} is associated with melanoma in Open Targets but is not "
             "currently mapped to a curated anti-PD-1 resistance axis. "
-            f"Stable TargetIntel-IO role: {role}."
+            f"Stable TargetIntel-IO role: {role}. "
+            f"Best current modality interpretation: {best_modality}."
         )
 
     if pd.notna(score):
         return (
             f"{symbol} is associated with melanoma in Open Targets "
             f"(score={score:.3f}), maps to the curated resistance program "
-            f"'{axis}', and is classified as: {role}."
+            f"'{axis}', is classified as '{role}', and has best current "
+            f"modality interpretation: {best_modality}."
         )
 
     return (
-        f"{symbol} maps to the curated resistance program '{axis}' "
-        f"and is classified as: {role}."
+        f"{symbol} maps to the curated resistance program '{axis}', "
+        f"is classified as '{role}', and has best current modality "
+        f"interpretation: {best_modality}."
     )
 
 
@@ -133,6 +149,7 @@ def reorder_feature_table_columns(df: pd.DataFrame) -> pd.DataFrame:
     Reorder columns so the most interpretable TargetIntel-IO fields appear first.
     """
     preferred_columns = [
+        # Core target identity
         "target_symbol",
         "target_name",
         "target_id",
@@ -140,24 +157,41 @@ def reorder_feature_table_columns(df: pd.DataFrame) -> pd.DataFrame:
         "disease_id",
         "disease_name",
         "opentargets_score",
+
+        # Resistance-axis ontology
         "resistance_axis",
         "matched_resistance_programs",
         "matched_signature_genes",
         "resistance_axis_score",
         "resistance_axis_confidence",
         "expected_role_from_axis",
+        "therapeutic_direction_from_axis",
+        "preferred_modalities_from_axis",
+
+        # Stable translational role classifier
         "role_classification",
         "role_confidence",
         "role_rationale",
         "therapeutic_direction",
         "directionality_confidence",
         "directionality_rationale",
-        "therapeutic_direction_from_axis",
-        "preferred_modalities_from_axis",
+
+        # Modality-aware reasoning
+        "antibody_fit",
+        "small_molecule_fit",
+        "biomarker_fit",
+        "io_combination_fit",
+        "poor_direct_target_flag",
+        "best_modality",
+        "modality_rationale",
+
+        # First-pass utility fields
         "has_resistance_axis_match",
         "axis_evidence_for",
         "axis_evidence_against",
         "initial_priority_note",
+
+        # Raw Open Targets evidence summaries
         "datatype_scores",
         "datasource_scores",
     ]
