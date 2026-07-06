@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 # TargetIntel-IO
 
 **Explainable therapeutic-intent-aware target triage for anti-PD-1-resistant melanoma**
