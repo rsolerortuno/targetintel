@@ -1,0 +1,96 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Python 3.11 tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Upgrade packaging tools
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+
+      - name: Install project and test dependencies
+        run: |
+          python -m pip install -e .
+          python -m pip install pytest scikit-learn matplotlib
+
+      - name: Verify package imports
+        run: |
+          python - <<'PY'
+          import matplotlib
+          import numpy
+          import pandas
+          import requests
+          import sklearn
+          import yaml
+
+          import targetintel
+          from targetintel import benchmark
+          from targetintel import confidence
+          from targetintel import evidence_auditor
+          from targetintel import feature_table
+          from targetintel import intent_ranking
+          from targetintel import modality
+          from targetintel import opentargets
+          from targetintel import resistance_ontology
+          from targetintel import role_classifier
+          from targetintel import scoring
+          from targetintel import target_universe
+          from targetintel import visualization
+
+          print("TargetIntel-IO imports: OK")
+          PY
+
+      - name: Validate Python syntax
+        run: |
+          python -m compileall -q targetintel scripts tests
+
+      - name: Validate YAML configurations
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          import yaml
+
+          yaml_paths = sorted(Path("configs").glob("*.yaml"))
+          yaml_paths.append(Path("environment.yml"))
+
+          for path in yaml_paths:
+              if not path.exists():
+                  raise FileNotFoundError(path)
+
+              with path.open("r", encoding="utf-8") as handle:
+                  content = yaml.safe_load(handle)
+
+              if content is None:
+                  raise ValueError(f"Empty YAML file: {path}")
+
+              print(f"Validated: {path}")
+
+          print(f"Validated {len(yaml_paths)} YAML files.")
+          PY
+
+      - name: Run unit tests
+        run: |
+          python -m pytest tests -v
