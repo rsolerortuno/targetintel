@@ -26,13 +26,17 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      - name: Upgrade packaging tools
+      - name: Upgrade pip
         run: |
-          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --upgrade pip
 
-      - name: Install project and development dependencies
+      - name: Install locked dependencies
         run: |
-          python -m pip install -e ".[dev]"
+          python -m pip install             --require-hashes             --requirement requirements-lock.txt
+
+      - name: Install TargetIntel-IO
+        run: |
+          python -m pip install             --no-deps             --no-build-isolation             --editable .
 
       - name: Check installed dependencies
         run: |
