@@ -830,23 +830,85 @@ These are future extensions, not core claims of the current MVP.
 
 ## Limitations
 
-TargetIntel-IO is a research and portfolio tool. It does not provide clinical recommendations, validated therapeutic targets, or medical advice.
+TargetIntel-IO is a transparent hypothesis-generation and target-triage
+framework. It does not provide clinical recommendations, validated therapeutic
+targets, biomarker qualification, or medical advice.
 
-The framework is hypothesis-generating and depends on:
+### External evidence retrieval
 
-* public data availability;
-* dataset quality;
-* manually curated resistance axes;
-* scoring assumptions;
-* disease-context definition;
-* rule design;
-* biological interpretation of target modality and therapeutic role.
+- Only **25/56 (44.6%)**
+  benchmark targets appeared among the top 300 melanoma associations retrieved
+  from Open Targets.
+- The remaining **31 targets** were added explicitly to
+  the augmented benchmark universe with no retrieved Open Targets evidence.
+- Therefore, **56/56
+  (100%) TargetIntel evaluation coverage** means that the
+  software evaluated every curated benchmark target. It does not mean that
+  Open Targets independently recovered every target.
 
-All findings require experimental and clinical validation.
+### Internal benchmark interpretation
 
-The project should be interpreted as a transparent v1 target triage workflow, not as a validated target discovery engine.
+- The benchmark produced **100.0% stable-role accuracy**, but the
+  expected roles were curated using the same biological and translational
+  framework represented by the implemented rules. This measures implementation
+  consistency, not independent biological accuracy.
+- Strict primary-intent accuracy was
+  **91.1%
+  (51/56)**, with
+  **5 strict disagreements**.
+- Acceptable-intent accuracy was **100.0%** because
+  predefined therapeutically plausible alternative intents were accepted.
+  This should not be interpreted as prospective predictive performance.
+- Mean recall across the therapeutic-intent profiles was
+  **58.1% at top 10** and
+  **79.5% at top 20**. Consequently, not every curated positive
+  target is placed near the top of its expected ranking.
 
----
+See the
+[versioned benchmark snapshot](examples/benchmark/README.md)
+for the complete metrics and per-target predictions.
+
+### Weight sensitivity
+
+- The local sensitivity analysis evaluated **42 scenarios** in
+  which one scoring weight was changed by `-20%` or `+20%` and all weights were
+  subsequently renormalized.
+- All profiles retained 100% of their baseline top 5.
+- Worst-case top-10 retention was: **antibody/IO 90%, biomarker 100%, small-molecule 90%**.
+- Worst-case top-20 retention was: **antibody/IO 100%, biomarker 95%, small-molecule 100%**.
+- The minimum observed Spearman rank correlation was
+  **0.9852**.
+- The maximum observed change in strict or acceptable benchmark-intent accuracy
+  was **0.0000**.
+
+These results support local robustness to moderate changes in individual
+weights. They do not establish that the rankings are independent of weight
+selection. The analysis does not test simultaneous changes to multiple weights,
+perturbations larger than 20%, alternative scoring functions, or uncertainty in
+the curated biological rules.
+
+See the
+[versioned sensitivity snapshot](examples/sensitivity/README.md)
+for all scenarios and per-target rank changes.
+
+### Biological and generalizability limitations
+
+- The resistance axes, therapeutic roles, directions, and acceptable intents
+  are manually curated and may encode expert assumptions.
+- The current implementation is specific to anti-PD-1-resistant melanoma and
+  has not yet demonstrated equivalent performance in another disease context.
+- The benchmark is internally curated rather than derived from an independent,
+  blinded, prospective, or clinical dataset.
+- No external patient-level responder/non-responder cohort is currently used to
+  validate target rankings.
+- Public association evidence does not establish causality, therapeutic
+  tractability, safety, clinical benefit, or successful combination with
+  anti-PD-1 therapy.
+- Large rank changes can occur among low-scoring or tied targets near the bottom
+  of a ranking, even when the prioritized top targets remain stable.
+
+All generated hypotheses require independent experimental, translational, and
+clinical validation.
 
 ## Tech stack
 
