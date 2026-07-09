@@ -25,6 +25,7 @@ from targetintel.modality import annotate_modality_dataframe
 from targetintel.opentargets import get_melanoma_associated_targets
 from targetintel.resistance_ontology import annotate_dataframe
 from targetintel.role_classifier import classify_dataframe
+from targetintel.target_universe import augment_target_universe
 
 
 DEFAULT_FEATURE_TABLE_PATH = Path(
@@ -36,6 +37,7 @@ def build_feature_table(
     page_size: int = 100,
     max_pages: int = 3,
     refresh: bool = False,
+    required_symbols: list[str] | tuple[str, ...] | set[str] | None = None,
 ) -> pd.DataFrame:
     """
     Build the first TargetIntel-IO feature table.
@@ -61,6 +63,11 @@ def build_feature_table(
         page_size=page_size,
         max_pages=max_pages,
         refresh=refresh,
+    )
+
+    opentargets_df = augment_target_universe(
+        opentargets_df,
+        required_symbols=required_symbols,
     )
 
     feature_df = annotate_dataframe(

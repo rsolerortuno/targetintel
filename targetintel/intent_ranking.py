@@ -35,20 +35,59 @@ def add_opentargets_rank(
     score_column: str = "opentargets_score",
 ) -> pd.DataFrame:
     """
-    Add Open Targets baseline rank.
+    Add the Open Targets baseline rank.
 
-    Rank 1 means highest Open Targets melanoma association score.
+    Only targets actually retrieved from Open Targets receive a baseline rank.
+    Required targets added for complete benchmark evaluation retain a missing
+    Open Targets rank.
     """
     df = df.copy()
 
     if score_column not in df.columns:
         raise KeyError(f"Column not found: {score_column}")
 
-    df["opentargets_rank"] = (
-        df[score_column]
-        .rank(method="min", ascending=False)
-        .astype(int)
+    score_values = pd.to_numeric(
+        df[score_column],
+        errors="coerce",
     )
+
+    if "opentargets_evidence_available" in df.columns:
+        evidence_available = (
+            df["opentargets_evidence_available"]
+            .fillna(False)
+            .map(
+                lambda value: (
+                    value
+                    if isinstance(value, bool)
+                    else str(value).strip().lower()
+                    in {"true", "1", "yes", "y"}
+                )
+            )
+        )
+    else:
+        evidence_available = score_values.notna()
+
+    opentargets_rank = pd.Series(
+        pd.NA,
+        index=df.index,
+        dtype="Int64",
+    )
+
+    if evidence_available.any():
+        available_ranks = (
+            score_values.loc[evidence_available]
+            .rank(
+                method="min",
+                ascending=False,
+            )
+            .astype("Int64")
+        )
+
+        opentargets_rank.loc[evidence_available] = (
+            available_ranks
+        )
+
+    df["opentargets_rank"] = opentargets_rank
 
     return df
 
