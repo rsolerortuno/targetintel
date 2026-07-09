@@ -683,6 +683,8 @@ def build_benchmark_predictions(
         "confidence_level",
         "contradiction_score",
         "main_limitation",
+        "opentargets_evidence_available",
+        "target_universe_source",
     ]
 
     columns_to_keep.extend(
@@ -1190,6 +1192,28 @@ def calculate_benchmark_summary(
         ].eq(NONE_INTENT)
     ]
 
+    if "opentargets_evidence_available" in covered_predictions.columns:
+        opentargets_available = covered_predictions[
+            "opentargets_evidence_available"
+        ].map(
+            lambda value: (
+                value
+                if isinstance(value, bool)
+                else _safe_str(value).lower()
+                in {"true", "1", "yes", "y"}
+            )
+        )
+    else:
+        opentargets_available = pd.Series(
+            False,
+            index=covered_predictions.index,
+            dtype=bool,
+        )
+
+    opentargets_retrieved_count = int(
+        opentargets_available.sum()
+    )
+
     scored_intent_rows = intent_metrics[
         intent_metrics["intent"].isin(
             benchmark_metadata["modes"]
@@ -1209,6 +1233,19 @@ def calculate_benchmark_summary(
             total_targets - covered_targets
         ),
         "benchmark_coverage": (
+            covered_targets / total_targets
+            if total_targets
+            else 0.0
+        ),
+        "opentargets_retrieved_benchmark_targets": (
+            opentargets_retrieved_count
+        ),
+        "opentargets_retrieval_coverage": (
+            opentargets_retrieved_count / total_targets
+            if total_targets
+            else 0.0
+        ),
+        "targetintel_evaluation_coverage": (
             covered_targets / total_targets
             if total_targets
             else 0.0
