@@ -32,6 +32,24 @@ DEFAULT_SENSITIVITY_OUTPUT_DIR = Path("results/sensitivity")
 DEFAULT_PERTURBATION_FRACTION = 0.20
 DEFAULT_TOP_K_VALUES = (5, 10, 20)
 
+GENERATED_PROFILE_SUFFIXES = (
+    "opentargets_component_score",
+    "resistance_axis_component_score",
+    "role_fit_component_score",
+    "modality_fit_component_score",
+    "confidence_component_score",
+    "evidence_balance_component_score",
+    "novelty_or_crowding_component_score",
+    "weighted_score_before_penalty",
+    "standard_penalty_score",
+    "intent_mismatch_penalty_score",
+    "total_penalty_score",
+    "final_score",
+    "rank",
+    "priority",
+    "rank_shift_vs_opentargets",
+)
+
 
 @dataclass
 class SensitivityAnalysis:
@@ -214,18 +232,21 @@ def prepare_feature_dataframe(
             f"{missing_columns}"
         )
 
-    prefixes = tuple(
-        f"{profile_id}_"
-        for profile_id in profile_ids
-    )
+    profile_ids = tuple(profile_ids)
+
+    generated_columns = [
+        "opentargets_rank",
+        *[
+            f"{profile_id}_{suffix}"
+            for profile_id in profile_ids
+            for suffix in GENERATED_PROFILE_SUFFIXES
+        ],
+    ]
 
     generated_columns = [
         column
-        for column in input_df.columns
-        if (
-            column == "opentargets_rank"
-            or column.startswith(prefixes)
-        )
+        for column in generated_columns
+        if column in input_df.columns
     ]
 
     feature_df = input_df.drop(

@@ -414,3 +414,92 @@ def test_save_sensitivity_results(
         saved_scenarios.iloc[0]["scenario_id"]
         == "test__weight__plus20"
     )
+
+def test_prepare_feature_dataframe_preserves_modality_input_features() -> None:
+    """Input modality features must not be mistaken for generated scores."""
+    input_df = pd.DataFrame(
+        {
+            "target_symbol": [
+                "BRAF",
+                "B2M",
+            ],
+            "opentargets_score": [
+                0.85,
+                0.70,
+            ],
+            "role_classification": [
+                "tumor-intrinsic driver / small-molecule target",
+                "antigen-presentation resistance biomarker",
+            ],
+            "antibody_fit": [
+                "low",
+                "low",
+            ],
+            "io_combination_fit": [
+                "low",
+                "low",
+            ],
+            "biomarker_fit": [
+                "medium",
+                "high",
+            ],
+            "small_molecule_fit": [
+                "high",
+                "low",
+            ],
+            "antibody_io_final_score": [
+                0.10,
+                0.20,
+            ],
+            "biomarker_final_score": [
+                0.30,
+                0.80,
+            ],
+            "small_molecule_final_score": [
+                0.90,
+                0.10,
+            ],
+            "antibody_io_rank": [
+                2,
+                1,
+            ],
+            "biomarker_rank": [
+                2,
+                1,
+            ],
+            "small_molecule_rank": [
+                1,
+                2,
+            ],
+        }
+    )
+
+    prepared = prepare_feature_dataframe(
+        input_df,
+        profile_ids=[
+            "antibody_io",
+            "biomarker",
+            "small_molecule",
+        ],
+    )
+
+    for column in [
+        "antibody_fit",
+        "io_combination_fit",
+        "biomarker_fit",
+        "small_molecule_fit",
+    ]:
+        assert column in prepared.columns
+
+    for column in [
+        "antibody_io_final_score",
+        "biomarker_final_score",
+        "small_molecule_final_score",
+        "antibody_io_rank",
+        "biomarker_rank",
+        "small_molecule_rank",
+    ]:
+        assert column not in prepared.columns
+
+    assert prepared.loc[0, "small_molecule_fit"] == "high"
+    assert prepared.loc[1, "biomarker_fit"] == "high"
