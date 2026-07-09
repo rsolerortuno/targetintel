@@ -30,10 +30,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
 
-      - name: Install project and test dependencies
+      - name: Install project and development dependencies
         run: |
-          python -m pip install -e .
-          python -m pip install pytest scikit-learn matplotlib
+          python -m pip install -e ".[dev]"
+
+      - name: Check installed dependencies
+        run: |
+          python -m pip check
 
       - name: Verify package imports
         run: |
@@ -56,6 +59,8 @@ jobs:
           from targetintel import resistance_ontology
           from targetintel import role_classifier
           from targetintel import scoring
+          from targetintel import sensitivity
+          from targetintel import sensitivity_visualization
           from targetintel import target_universe
           from targetintel import visualization
 
