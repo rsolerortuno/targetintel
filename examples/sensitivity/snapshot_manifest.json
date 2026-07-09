@@ -1,0 +1,44 @@
+{
+  "analysis_id": "targetintel_weight_sensitivity_v0_1",
+  "analysis_type": "one_weight_at_a_time",
+  "files": {
+    "sensitivity_by_weight.csv": {
+      "sha256": "faf19c8aa2485dda7daa895b3a6ed90c220bc42bf1a05afac37de05217e9705f",
+      "size_bytes": 3646
+    },
+    "sensitivity_metrics.json": {
+      "sha256": "85c77542576ccfbd4d9c58483ac6f27923c0e16020bd5332497fc20d7fb12cab",
+      "size_bytes": 5365
+    },
+    "sensitivity_overview.png": {
+      "sha256": "0208c4f42dbe867389e098053b4eaf3d72eb818d6eecd1d83ef480d5abd398ef",
+      "size_bytes": 109006
+    },
+    "sensitivity_scenarios.csv": {
+      "sha256": "fc3be93e5f068612f8a93340ff72493d233bf2bc50acad103c3457b6f94bc2fb",
+      "size_bytes": 33558
+    },
+    "sensitivity_summary.csv": {
+      "sha256": "679dffe7a30833df8059a4f071b40dc3d7d863a2bc8f17d1ea406f53675a49b6",
+      "size_bytes": 880
+    },
+    "target_rank_stability.csv": {
+      "sha256": "615e6acde4afa0bf71e37e67328632afdb801aa1726f52851f8fd8beccd6a132",
+      "size_bytes": 88998
+    }
+  },
+  "perturbation_fraction": 0.2,
+  "profiles": [
+    "antibody_io",
+    "biomarker",
+    "small_molecule"
+  ],
+  "scenario_count": 42,
+  "source_directory": "results/sensitivity",
+  "target_count": 331,
+  "top_k_values": [
+    5,
+    10,
+    20
+  ]
+}

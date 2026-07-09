@@ -1,0 +1,4 @@
+profile_id,scenario_count,minimum_spearman,mean_spearman,minimum_spearman_scenario,maximum_mean_absolute_rank_change,maximum_absolute_rank_change,maximum_absolute_primary_intent_accuracy_delta,maximum_absolute_acceptable_intent_accuracy_delta,maximum_absolute_cross_intent_specificity_delta,minimum_top_5_jaccard,mean_top_5_jaccard,minimum_top_5_retention,minimum_top_10_jaccard,mean_top_10_jaccard,minimum_top_10_retention,minimum_top_20_jaccard,mean_top_20_jaccard,minimum_top_20_retention
+antibody_io,14,1.0,1.0,antibody_io__confidence_score__minus20,0.0363,6.0,0.0,0.0,0.0,1.0,1.0,1.0,0.8182,0.9351,0.9,1.0,1.0,1.0
+biomarker,14,1.0,1.0,biomarker__opentargets_score__plus20,0.0906,4.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,1.0,1.0,0.9048,0.966,0.95
+small_molecule,14,0.9852,0.9936,small_molecule__role_fit_score__minus20,3.142,295.0,0.0,0.0,0.0,1.0,1.0,1.0,0.8182,0.9221,0.9,1.0,1.0,1.0

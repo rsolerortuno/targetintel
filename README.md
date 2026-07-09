@@ -932,6 +932,8 @@ clinical validation or evidence of therapeutic efficacy.
 
 A versioned benchmark-output snapshot is available in [`examples/benchmark/`](examples/benchmark/README.md).
 
+A versioned weight-sensitivity snapshot is available in [`examples/sensitivity/`](examples/sensitivity/README.md).
+
 ### Run the benchmark
 
 Build the augmented benchmark universe:
