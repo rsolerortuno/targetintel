@@ -934,11 +934,22 @@ clinical validation or evidence of therapeutic efficacy.
 
 Build the augmented benchmark universe:
 
-    python scripts/09_build_benchmark_universe.py       --page-size 100       --max-pages 3
+~~~bash
+python scripts/09_build_benchmark_universe.py \
+  --page-size 100 \
+  --max-pages 3
+~~~
 
 Run the benchmark:
 
-    python scripts/08_run_benchmark.py       --input results/benchmark/ranked_targets_benchmark_universe.csv       --config configs/benchmark_targets.yaml       --outdir results/benchmark       --show-missing       --show-errors
+~~~bash
+python scripts/08_run_benchmark.py \
+  --input results/benchmark/ranked_targets_benchmark_universe.csv \
+  --config configs/benchmark_targets.yaml \
+  --outdir results/benchmark \
+  --show-missing \
+  --show-errors
+~~~
 
 ### Continuous integration
 
