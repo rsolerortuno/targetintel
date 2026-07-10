@@ -82,10 +82,10 @@ def test_prepare_sensitivity_matrix_preserves_profile_order() -> None:
     ]
 
     assert metric_labels == [
-        "Minimum\nSpearman",
-        "Minimum\nTop-5 retention",
-        "Minimum\nTop-10 retention",
-        "Minimum\nTop-20 retention",
+        "Minimum Spearman",
+        "Top-5 retention",
+        "Top-10 retention",
+        "Top-20 retention",
     ]
 
     assert matrix[0, 0] == pytest.approx(

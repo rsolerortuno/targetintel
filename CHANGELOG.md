@@ -2,6 +2,39 @@
 
 All notable changes to TargetIntel-IO are documented in this file.
 
+## [0.1.2] - 2026-07-10
+
+### Fixed
+
+- Corrected sensitivity preprocessing that incorrectly removed the
+  `biomarker_fit` and `small_molecule_fit` input features when recalculating
+  perturbed rankings.
+- Regenerated the complete weight-sensitivity snapshot from the current
+  benchmark universe and scoring configurations.
+- Added regression validation requiring the sensitivity baseline benchmark
+  to match the official benchmark snapshot.
+- Replaced the sensitivity visualization with an annotated heatmap using a
+  focused scale so differences near 1.0 remain visible.
+
+### Corrected sensitivity results
+
+Across 42 one-weight-at-a-time perturbation scenarios:
+
+- worst-case top-5 retention was 100% for antibody/IO, 100% for biomarker,
+  and 80% for small molecule;
+- worst-case top-10 retention was 90%, 100%, and 90%, respectively;
+- worst-case top-20 retention was 100%, 95%, and 100%, respectively;
+- minimum Spearman rank correlation was 0.8762;
+- maximum absolute strict primary-intent accuracy change was 5.36 percentage
+  points;
+- maximum absolute acceptable-intent accuracy change was 3.57 percentage
+  points;
+- maximum absolute cross-intent specificity change was 5.66 percentage
+  points.
+
+These corrected results supersede the sensitivity metrics published in
+v0.1.1. The benchmark snapshot itself was not affected.
+
 ## [0.1.1] - 2026-07-09
 
 ### Added

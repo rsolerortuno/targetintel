@@ -1,30 +1,31 @@
 {
   "analysis_id": "targetintel_weight_sensitivity_v0_1",
   "analysis_type": "one_weight_at_a_time",
+  "corrected_in_release": "0.1.2",
   "files": {
     "sensitivity_by_weight.csv": {
-      "sha256": "faf19c8aa2485dda7daa895b3a6ed90c220bc42bf1a05afac37de05217e9705f",
-      "size_bytes": 3646
+      "sha256": "5cd1e662260b80cba628fed01dc25ed9172513eebe6259c4a2799e95bd727ffc",
+      "size_bytes": 3692
     },
     "sensitivity_metrics.json": {
-      "sha256": "85c77542576ccfbd4d9c58483ac6f27923c0e16020bd5332497fc20d7fb12cab",
-      "size_bytes": 5365
+      "sha256": "08504896911aa52bfd7f434654ea8ae79de915d6a89955b6345664218c2ad33d",
+      "size_bytes": 5395
     },
     "sensitivity_overview.png": {
-      "sha256": "0208c4f42dbe867389e098053b4eaf3d72eb818d6eecd1d83ef480d5abd398ef",
-      "size_bytes": 109006
+      "sha256": "2e954903018a63abceee07bfa56659c19f74e670854392c70d30cb997306ebd5",
+      "size_bytes": 139345
     },
     "sensitivity_scenarios.csv": {
-      "sha256": "fc3be93e5f068612f8a93340ff72493d233bf2bc50acad103c3457b6f94bc2fb",
-      "size_bytes": 33558
+      "sha256": "8306ed1a85ccfa9399b9ed0506a7f975bf7b4740af7d66feec0881affc077061",
+      "size_bytes": 33376
     },
     "sensitivity_summary.csv": {
-      "sha256": "679dffe7a30833df8059a4f071b40dc3d7d863a2bc8f17d1ea406f53675a49b6",
-      "size_bytes": 880
+      "sha256": "7340c4492c128ef966c5808beba7d41af39125bedb96096e550559d959ddb018",
+      "size_bytes": 916
     },
     "target_rank_stability.csv": {
-      "sha256": "615e6acde4afa0bf71e37e67328632afdb801aa1726f52851f8fd8beccd6a132",
-      "size_bytes": 88998
+      "sha256": "bb62073cd8f1084102f0f5fa38ceccc8df020ff2105aaac8eaafda27954230d6",
+      "size_bytes": 88690
     }
   },
   "perturbation_fraction": 0.2,

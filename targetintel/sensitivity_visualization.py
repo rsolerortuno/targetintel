@@ -28,10 +28,10 @@ DEFAULT_METRICS = (
 )
 
 METRIC_LABELS = {
-    "minimum_spearman": "Minimum\nSpearman",
-    "minimum_top_5_retention": "Minimum\nTop-5 retention",
-    "minimum_top_10_retention": "Minimum\nTop-10 retention",
-    "minimum_top_20_retention": "Minimum\nTop-20 retention",
+    "minimum_spearman": "Minimum Spearman",
+    "minimum_top_5_retention": "Top-5 retention",
+    "minimum_top_10_retention": "Top-10 retention",
+    "minimum_top_20_retention": "Top-20 retention",
 }
 
 PROFILE_LABELS = {
@@ -47,6 +47,9 @@ def validate_sensitivity_summary(
     metrics: Iterable[str] = DEFAULT_METRICS,
 ) -> None:
     """Validate the sensitivity summary used for plotting."""
+    profile_order = tuple(profile_order)
+    metrics = tuple(metrics)
+
     required_columns = {
         "profile_id",
         *metrics,
@@ -83,9 +86,9 @@ def validate_sensitivity_summary(
     )
 
     missing_profiles = [
-        profile
-        for profile in profile_order
-        if profile not in available_profiles
+        profile_id
+        for profile_id in profile_order
+        if profile_id not in available_profiles
     ]
 
     if missing_profiles:
@@ -109,10 +112,7 @@ def validate_sensitivity_summary(
             f"non-numeric values: {invalid_columns}"
         )
 
-    outside_range = (
-        numeric.lt(0)
-        | numeric.gt(1)
-    )
+    outside_range = numeric.lt(0) | numeric.gt(1)
 
     if outside_range.any().any():
         invalid_columns = numeric.columns[
@@ -156,10 +156,10 @@ def prepare_sensitivity_matrix(
 
     profile_labels = [
         PROFILE_LABELS.get(
-            profile,
-            profile,
+            profile_id,
+            profile_id,
         )
-        for profile in profile_order
+        for profile_id in profile_order
     ]
 
     metric_labels = [
@@ -177,19 +177,37 @@ def prepare_sensitivity_matrix(
     )
 
 
+def _heatmap_limits(
+    matrix: np.ndarray,
+) -> tuple[float, float]:
+    """
+    Choose a compact heatmap scale so differences near 1.0 remain visible.
+    """
+    min_value = float(np.nanmin(matrix))
+    lower = min(0.90, np.floor((min_value - 0.03) * 100) / 100)
+
+    lower = max(0.0, lower)
+    upper = 1.0
+
+    if lower >= upper:
+        lower = max(0.0, upper - 0.10)
+
+    return lower, upper
+
+
 def plot_sensitivity_overview(
     summary_df: pd.DataFrame,
     output_path: str | Path,
     profile_order: Iterable[str] = DEFAULT_PROFILE_ORDER,
     metrics: Iterable[str] = DEFAULT_METRICS,
     title: str = (
-        "Ranking stability under one-weight-at-a-time "
-        "perturbations of ±20%"
+        "Worst-case ranking stability under "
+        "±20% scoring-weight perturbations"
     ),
     dpi: int = 220,
 ) -> Path:
     """
-    Plot minimum rank and top-k stability across therapeutic profiles.
+    Plot worst-case ranking stability as a compact heatmap.
     """
     output_path = Path(output_path)
 
@@ -208,46 +226,32 @@ def plot_sensitivity_overview(
         metrics=metrics,
     )
 
-    figure_width = max(
-        8.0,
-        len(metric_labels) * 2.0,
-    )
-
-    figure_height = max(
-        4.2,
-        len(profile_labels) * 1.25,
-    )
+    vmin, vmax = _heatmap_limits(matrix)
 
     figure, axis = plt.subplots(
-        figsize=(
-            figure_width,
-            figure_height,
-        )
+        figsize=(9.8, 4.8)
     )
 
     image = axis.imshow(
         matrix,
         aspect="auto",
-        vmin=0.0,
-        vmax=1.0,
+        vmin=vmin,
+        vmax=vmax,
+        interpolation="nearest",
     )
 
     axis.set_xticks(
-        np.arange(
-            len(metric_labels)
-        )
+        np.arange(len(metric_labels))
     )
-
     axis.set_xticklabels(
-        metric_labels
+        metric_labels,
+        rotation=20,
+        ha="right",
     )
 
     axis.set_yticks(
-        np.arange(
-            len(profile_labels)
-        )
+        np.arange(len(profile_labels))
     )
-
     axis.set_yticklabels(
         profile_labels
     )
@@ -255,26 +259,45 @@ def plot_sensitivity_overview(
     axis.set_xlabel(
         "Worst-case stability metric"
     )
-
     axis.set_ylabel(
         "Therapeutic-intent profile"
     )
-
     axis.set_title(
         title,
-        pad=16,
+        pad=14,
     )
 
-    for row_index in range(
-        matrix.shape[0]
-    ):
-        for column_index in range(
-            matrix.shape[1]
-        ):
-            value = matrix[
-                row_index,
-                column_index,
-            ]
+    axis.set_xticks(
+        np.arange(-0.5, len(metric_labels), 1),
+        minor=True,
+    )
+    axis.set_yticks(
+        np.arange(-0.5, len(profile_labels), 1),
+        minor=True,
+    )
+    axis.grid(
+        which="minor",
+        color="white",
+        linestyle="-",
+        linewidth=1.2,
+    )
+    axis.tick_params(
+        which="minor",
+        bottom=False,
+        left=False,
+    )
+
+    midpoint = (vmin + vmax) / 2
+
+    for row_index in range(matrix.shape[0]):
+        for column_index in range(matrix.shape[1]):
+            value = matrix[row_index, column_index]
+
+            text_color = (
+                "white"
+                if value < midpoint
+                else "black"
+            )
 
             axis.text(
                 column_index,
@@ -282,6 +305,9 @@ def plot_sensitivity_overview(
                 f"{value:.3f}",
                 ha="center",
                 va="center",
+                color=text_color,
+                fontsize=10,
+                fontweight="bold",
             )
 
     colorbar = figure.colorbar(
@@ -290,17 +316,17 @@ def plot_sensitivity_overview(
         fraction=0.046,
         pad=0.04,
     )
-
     colorbar.set_label(
-        "Stability (1.0 = unchanged)"
+        "Worst-case stability (1.0 = unchanged)"
     )
 
     figure.text(
         0.5,
-        0.015,
+        0.02,
         (
-            "Each scenario perturbs one scoring weight by −20% or +20%, "
-            "followed by weight renormalization."
+            "Each scenario changes one scoring weight by −20% or +20%, "
+            "then renormalizes all weights. "
+            "The heatmap shows the minimum value observed for each metric."
         ),
         ha="center",
         fontsize=9,
@@ -309,7 +335,7 @@ def plot_sensitivity_overview(
     figure.tight_layout(
         rect=(
             0.0,
-            0.055,
+            0.06,
             1.0,
             1.0,
         )
@@ -326,8 +352,6 @@ def plot_sensitivity_overview(
         bbox_inches="tight",
     )
 
-    plt.close(
-        figure
-    )
+    plt.close(figure)
 
     return output_path

@@ -5,12 +5,16 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import pytest
 
 
 SNAPSHOT_DIR = Path("examples/sensitivity")
+BENCHMARK_SUMMARY_PATH = Path(
+    "examples/benchmark/benchmark_summary.json"
+)
 
 EXPECTED_FILES = {
     "README.md",
@@ -41,6 +45,22 @@ def _sha256(path: Path) -> str:
             digest.update(chunk)
 
     return digest.hexdigest()
+
+
+def _equivalent(
+    left: Any,
+    right: Any,
+    tolerance: float = 1e-4,
+) -> bool:
+    if (
+        isinstance(left, (int, float))
+        and isinstance(right, (int, float))
+    ):
+        return abs(
+            float(left) - float(right)
+        ) <= tolerance
+
+    return left == right
 
 
 def test_snapshot_contains_expected_files() -> None:
@@ -77,96 +97,168 @@ def test_sensitivity_snapshot_has_expected_scenarios() -> None:
 
     assert set(
         scenarios["direction"]
-    ) == {"minus", "plus"}
+    ) == {
+        "minus",
+        "plus",
+    }
 
     assert set(
         scenarios["perturbation_fraction"]
-    ) == {0.20}
+    ) == {
+        0.20,
+    }
 
 
-def test_high_priority_rankings_remain_stable() -> None:
+def test_corrected_profile_stability_metrics() -> None:
+    summary = (
+        pd.read_csv(
+            SNAPSHOT_DIR / "sensitivity_summary.csv"
+        )
+        .set_index("profile_id")
+    )
+
+    assert set(summary.index) == EXPECTED_PROFILES
+
+    expected = {
+        "antibody_io": {
+            "minimum_spearman": 1.0000,
+            "minimum_top_5_retention": 1.00,
+            "minimum_top_10_retention": 0.90,
+            "minimum_top_20_retention": 1.00,
+        },
+        "biomarker": {
+            "minimum_spearman": 1.0000,
+            "minimum_top_5_retention": 1.00,
+            "minimum_top_10_retention": 1.00,
+            "minimum_top_20_retention": 0.95,
+        },
+        "small_molecule": {
+            "minimum_spearman": 0.8762,
+            "minimum_top_5_retention": 0.80,
+            "minimum_top_10_retention": 0.90,
+            "minimum_top_20_retention": 1.00,
+        },
+    }
+
+    for profile_id, metrics in expected.items():
+        for metric, expected_value in metrics.items():
+            assert (
+                summary.loc[
+                    profile_id,
+                    metric,
+                ]
+                == pytest.approx(
+                    expected_value,
+                    abs=1e-4,
+                )
+            )
+
+
+def test_corrected_benchmark_metric_deltas() -> None:
     summary = pd.read_csv(
         SNAPSHOT_DIR / "sensitivity_summary.csv"
     )
 
-    assert set(summary["profile_id"]) == EXPECTED_PROFILES
-
     assert (
-        summary["minimum_spearman"]
-        >= 0.98
-    ).all()
-
-    assert (
-        summary["minimum_top_5_retention"]
-        .eq(1.0)
-        .all()
+        summary[
+            "maximum_absolute_primary_intent_accuracy_delta"
+        ].max()
+        == pytest.approx(
+            0.0536,
+            abs=1e-4,
+        )
     )
 
     assert (
-        summary["minimum_top_10_retention"]
-        >= 0.90
-    ).all()
-
-    assert (
-        summary["minimum_top_20_retention"]
-        >= 0.95
-    ).all()
-
-
-def test_benchmark_accuracy_does_not_change() -> None:
-    scenarios = pd.read_csv(
-        SNAPSHOT_DIR / "sensitivity_scenarios.csv"
+        summary[
+            "maximum_absolute_acceptable_intent_accuracy_delta"
+        ].max()
+        == pytest.approx(
+            0.0357,
+            abs=1e-4,
+        )
     )
 
-    delta_columns = [
-        "delta_benchmark_primary_intent_accuracy_covered",
-        "delta_benchmark_acceptable_intent_accuracy_covered",
-        "delta_benchmark_primary_intent_macro_f1_covered",
-        "delta_benchmark_control_not_prioritized_rate_covered",
+    assert (
+        summary[
+            "maximum_absolute_cross_intent_specificity_delta"
+        ].max()
+        == pytest.approx(
+            0.0566,
+            abs=1e-4,
+        )
+    )
+
+
+def test_sensitivity_baseline_matches_official_benchmark() -> None:
+    benchmark = json.loads(
+        BENCHMARK_SUMMARY_PATH.read_text(
+            encoding="utf-8"
+        )
+    )
+
+    metrics = json.loads(
+        (
+            SNAPSHOT_DIR / "sensitivity_metrics.json"
+        ).read_text(
+            encoding="utf-8"
+        )
+    )
+
+    baseline = metrics[
+        "baseline_benchmark_summary"
     ]
 
-    for column in delta_columns:
-        assert column in scenarios.columns
-        assert (
-            scenarios[column]
-            .fillna(0.0)
-            .abs()
-            .max()
-            == pytest.approx(0.0)
+    assert set(baseline) == set(benchmark)
+
+    differences = {
+        key: (
+            benchmark[key],
+            baseline[key],
         )
+        for key in benchmark
+        if not _equivalent(
+            benchmark[key],
+            baseline[key],
+        )
+    }
+
+    assert differences == {}
 
 
 def test_metrics_metadata_is_consistent() -> None:
     metrics = json.loads(
         (
-            SNAPSHOT_DIR
-            / "sensitivity_metrics.json"
-        ).read_text(encoding="utf-8")
+            SNAPSHOT_DIR / "sensitivity_metrics.json"
+        ).read_text(
+            encoding="utf-8"
+        )
     )
 
     assert metrics["analysis_id"] == (
         "targetintel_weight_sensitivity_v0_1"
     )
-
     assert metrics["analysis_type"] == (
         "one_weight_at_a_time"
     )
-
-    assert metrics["perturbation_fraction"] == pytest.approx(
-        0.20
-    )
-
+    assert metrics[
+        "perturbation_fraction"
+    ] == pytest.approx(0.20)
     assert metrics["scenario_count"] == 42
     assert metrics["target_count"] == 331
-
-    assert set(metrics["profiles"]) == EXPECTED_PROFILES
-    assert metrics["top_k_values"] == [5, 10, 20]
+    assert set(
+        metrics["profiles"]
+    ) == EXPECTED_PROFILES
+    assert metrics["top_k_values"] == [
+        5,
+        10,
+        20,
+    ]
 
 
 def test_snapshot_figure_is_non_empty() -> None:
     figure_path = (
-        SNAPSHOT_DIR
-        / "sensitivity_overview.png"
+        SNAPSHOT_DIR / "sensitivity_overview.png"
     )
 
     assert figure_path.is_file()
@@ -176,9 +268,10 @@ def test_snapshot_figure_is_non_empty() -> None:
 def test_snapshot_manifest_hashes_are_current() -> None:
     manifest = json.loads(
         (
-            SNAPSHOT_DIR
-            / "snapshot_manifest.json"
-        ).read_text(encoding="utf-8")
+            SNAPSHOT_DIR / "snapshot_manifest.json"
+        ).read_text(
+            encoding="utf-8"
+        )
     )
 
     expected_hashed_files = {
@@ -190,15 +283,28 @@ def test_snapshot_manifest_hashes_are_current() -> None:
         "sensitivity_overview.png",
     }
 
-    assert set(manifest["files"]) == expected_hashed_files
+    assert set(
+        manifest["files"]
+    ) == expected_hashed_files
     assert manifest["scenario_count"] == 42
-    assert manifest["perturbation_fraction"] == pytest.approx(
-        0.20
-    )
+    assert manifest[
+        "perturbation_fraction"
+    ] == pytest.approx(0.20)
+    assert manifest[
+        "corrected_in_release"
+    ] == "0.1.2"
 
-    for filename, metadata in manifest["files"].items():
+    for filename, metadata in manifest[
+        "files"
+    ].items():
         path = SNAPSHOT_DIR / filename
 
         assert path.is_file()
-        assert path.stat().st_size == metadata["size_bytes"]
-        assert _sha256(path) == metadata["sha256"]
+        assert (
+            path.stat().st_size
+            == metadata["size_bytes"]
+        )
+        assert (
+            _sha256(path)
+            == metadata["sha256"]
+        )

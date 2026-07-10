@@ -870,26 +870,34 @@ for the complete metrics and per-target predictions.
 
 ### Weight sensitivity
 
-- The local sensitivity analysis evaluated **42 scenarios** in
-  which one scoring weight was changed by `-20%` or `+20%` and all weights were
+- The local sensitivity analysis evaluated **42 scenarios** in which one
+  scoring weight was changed by `-20%` or `+20%` and all weights were
   subsequently renormalized.
-- All profiles retained 100% of their baseline top 5.
-- Worst-case top-10 retention was: **antibody/IO 90%, biomarker 100%, small-molecule 90%**.
-- Worst-case top-20 retention was: **antibody/IO 100%, biomarker 95%, small-molecule 100%**.
-- The minimum observed Spearman rank correlation was
-  **0.9852**.
-- The maximum observed change in strict or acceptable benchmark-intent accuracy
-  was **0.0000**.
+- Worst-case top-5 retention was:
+  **antibody/IO 100%, biomarker 100%, small-molecule 80%**.
+- Worst-case top-10 retention was:
+  **antibody/IO 90%, biomarker 100%, small-molecule 90%**.
+- Worst-case top-20 retention was:
+  **antibody/IO 100%, biomarker 95%, small-molecule 100%**.
+- The minimum observed Spearman rank correlation was **0.8762**, occurring
+  in the small-molecule profile.
+- The maximum absolute change in strict primary-intent accuracy was
+  **5.36 percentage points**.
+- The maximum absolute change in acceptable-intent accuracy was
+  **3.57 percentage points**.
+- The maximum absolute change in cross-intent specificity was
+  **5.66 percentage points**.
 
-These results support local robustness to moderate changes in individual
-weights. They do not establish that the rankings are independent of weight
-selection. The analysis does not test simultaneous changes to multiple weights,
-perturbations larger than 20%, alternative scoring functions, or uncertainty in
-the curated biological rules.
+The results show strong local stability at top 10 and top 20, while also
+identifying greater weight sensitivity in the small-molecule profile. They
+do not establish that the rankings are independent of weight selection.
 
-See the
-[versioned sensitivity snapshot](examples/sensitivity/README.md)
-for all scenarios and per-target rank changes.
+The analysis does not test simultaneous changes to multiple weights,
+perturbations larger than 20%, alternative scoring functions, or uncertainty
+in the curated biological rules.
+
+See the [versioned sensitivity snapshot](examples/sensitivity/README.md) for
+all scenarios and per-target rank changes.
 
 ### Biological and generalizability limitations
 
