@@ -14,6 +14,13 @@ All notable changes to TargetIntel-IO are documented in this file.
   56-target benchmark and 42-scenario weight-sensitivity analysis.
 - Added pipeline and command-line regression tests.
 
+### Changed
+
+- Reworked the main README around the new `targetintel run` end-to-end workflow.
+- Consolidated duplicated benchmark, sensitivity, installation, and project-status documentation.
+- Replaced obsolete prototype commands and planned milestones with the implemented package, CLI, outputs, and validation workflow.
+- Added README regression tests for the repository URL, CLI quick start, versioned examples, obsolete content, and document length.
+
 ## [0.1.2] - 2026-07-10
 
 ### Fixed
