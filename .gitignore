@@ -232,3 +232,5 @@ __pycache__/
 # Environment
 .env
 .Rhistory
+CLAUDE.local.md
+.claude/settings.local.json
