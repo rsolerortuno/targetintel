@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 import math
 import re
+from types import MappingProxyType
 from typing import Any
 from collections.abc import Mapping
 
@@ -22,6 +23,20 @@ class ValidationError(ValueError):
     def __init__(self, issues: list[ValidationIssue]) -> None:
         self.issues = tuple(issues)
         super().__init__("; ".join(f"{issue.field}: {issue.message}" for issue in issues))
+
+
+@dataclass(frozen=True)
+class SemanticValidationContext:
+    """Read-only records available for validating derived-evidence lineage.
+
+    The candidate being validated is added to this context transiently.  The
+    validator never changes either the candidate or these parent records.
+    """
+
+    evidence_items: Mapping[str, models.EvidenceItem]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "evidence_items", MappingProxyType(dict(self.evidence_items)))
 
 
 def _is_number(value: Any) -> bool:
@@ -97,6 +112,151 @@ def validate_intrinsic(item: models.EvidenceItem) -> list[ValidationIssue]:
     return issues
 
 
+def _has_text(value: Any) -> bool:
+    return _non_empty_string(value)
+
+
+_GENERIC_PROVENANCE_IDENTIFIERS = frozenset({
+    "unknown", "none", "missing", "null", "n/a", "na", "not_applicable",
+    "not available", "unspecified",
+})
+
+
+def _has_stable_source_identity(item: models.EvidenceItem) -> bool:
+    """Apply the contract's generic-placeholder rule to source identity."""
+    return all(
+        _has_text(value) and value.strip().casefold() not in _GENERIC_PROVENANCE_IDENTIFIERS
+        for value in (item.source, item.source_id)
+    )
+
+
+def _has_successful_citation_verification(item: models.EvidenceItem) -> bool:
+    """Return whether frozen provenance explicitly records a successful check."""
+    return any(
+        step.step_type == "citation_verification"
+        and (step.details.get("success") is True or step.details.get("status") == "success")
+        for step in item.provenance_history
+    )
+
+
+def _has_complete_manual_review(item: models.EvidenceItem) -> bool:
+    """Return whether a review step retains all required manual-review audit data."""
+    for step in item.provenance_history:
+        if step.step_type != "manual_review":
+            continue
+        details = step.details
+        if (
+            _has_text(details.get("curator_id"))
+            and _has_text(details.get("review_rationale"))
+            and (
+                _has_text(details.get("reviewed_source_material"))
+                or _has_text(details.get("reviewed_computed_output"))
+            )
+        ):
+            # The provenance step's recorded_at is the immutable review timestamp.
+            return True
+    return False
+
+
+def _lineage_issues(
+    item: models.EvidenceItem, context: SemanticValidationContext | None
+) -> list[ValidationIssue]:
+    if not item.derived_from:
+        return []
+    available = {} if context is None else dict(context.evidence_items)
+    available[item.evidence_id] = item
+    issues: list[ValidationIssue] = []
+    for parent_id in item.derived_from:
+        if parent_id not in available:
+            issues.append(ValidationIssue("derived_from", f"parent '{parent_id}' does not resolve in validation context"))
+
+    # Continue only over resolvable links, which keeps dangling-parent errors
+    # deterministic and avoids treating unavailable records as scientific data.
+    def visit(record_id: str, path: tuple[str, ...]) -> None:
+        record = available.get(record_id)
+        if record is None:
+            return
+        for parent_id in record.derived_from:
+            if parent_id not in available:
+                continue
+            if parent_id in path:
+                cycle = " -> ".join((*path, parent_id))
+                issues.append(ValidationIssue("derived_from", f"derived-evidence graph contains cycle: {cycle}"))
+                continue
+            visit(parent_id, (*path, parent_id))
+
+    visit(item.evidence_id, (item.evidence_id,))
+    return issues
+
+
+def validate_semantic(
+    item: models.EvidenceItem,
+    context: SemanticValidationContext | None = None,
+) -> list[ValidationIssue]:
+    """Validate deterministic cross-field evidence rules without mutation or I/O."""
+    issues: list[ValidationIssue] = []
+    computed_or_database = item.extraction_method in {"computed", "database_import"} or item.evidence_type == "database_assertion"
+    literature = _has_text(item.publication_id) or item.validation_status == "citation_verified"
+
+    if computed_or_database and not _has_text(item.computed_support):
+        issues.append(ValidationIssue("computed_support", "must be non-empty for computed or database-derived evidence"))
+    if literature and not _has_text(item.quoted_span):
+        issues.append(ValidationIssue("quoted_span", "must be non-empty for literature evidence"))
+    if not computed_or_database and not literature and not (_has_text(item.quoted_span) or _has_text(item.computed_support)):
+        issues.append(ValidationIssue("quoted_span", "or computed_support must provide auditable support"))
+
+    if item.validation_status == "citation_verified" and not _has_successful_citation_verification(item):
+        issues.append(ValidationIssue("validation_status", "citation_verified requires successful citation_verification provenance"))
+    if item.validation_status == "manually_curated":
+        if not _has_stable_source_identity(item):
+            issues.append(ValidationIssue("source_id", "manually_curated requires a stable non-generic source identity"))
+        if not _has_complete_manual_review(item):
+            issues.append(ValidationIssue("provenance_history", "manually_curated requires manual_review provenance with curator_id, review timestamp, review_rationale, and reviewed material or output"))
+        if not (_has_text(item.quoted_span) or _has_text(item.computed_support)):
+            issues.append(ValidationIssue("quoted_span", "or computed_support must provide auditable support for manually_curated evidence"))
+
+    if item.independence_eligible:
+        if not _has_text(item.evidence_family):
+            issues.append(ValidationIssue("evidence_family", "must be non-null when independence_eligible is true"))
+        if item.evidence_family_basis == "ineligible":
+            issues.append(ValidationIssue("evidence_family_basis", "must not be 'ineligible' when independence_eligible is true"))
+        if item.independence_ineligibility_reason is not None:
+            issues.append(ValidationIssue("independence_ineligibility_reason", "must be null when independence_eligible is true"))
+    else:
+        # Intrinsic validation checks these too; retaining the semantic rule
+        # makes this API independently useful to candidate finalizers.
+        if item.evidence_family is not None:
+            issues.append(ValidationIssue("evidence_family", "must be null when independence_eligible is false"))
+        if item.evidence_family_basis != "ineligible":
+            issues.append(ValidationIssue("evidence_family_basis", "must be 'ineligible' when independence_eligible is false"))
+        if not _has_text(item.independence_ineligibility_reason):
+            issues.append(ValidationIssue("independence_ineligibility_reason", "must be non-empty when independence_eligible is false"))
+
+    if (item.effect_size is None) != (item.effect_size_metric is None):
+        issues.append(ValidationIssue("effect_size_metric", "must be present exactly when effect_size is present"))
+    # v0.2.0 defines no p-value field or uncertainty-metric vocabulary.  Its
+    # only approved cross-field uncertainty rule is the paired value/metric
+    # requirement below; positive sample_size is a field-local intrinsic rule.
+    # Do not infer a p-value/sample-size relationship from free text.
+    if (item.uncertainty is None) != (item.uncertainty_metric is None):
+        issues.append(ValidationIssue("uncertainty_metric", "must be present exactly when uncertainty is present"))
+
+    if item.evidence_type == "clinical_cohort" and not _has_text(item.patient_cohort_id):
+        issues.append(ValidationIssue("patient_cohort_id", "is required for clinical_cohort evidence"))
+    if item.model_system == "patient_tumor_biopsy" and not _has_text(item.patient_cohort_id):
+        issues.append(ValidationIssue("patient_cohort_id", "is required for patient_tumor_biopsy evidence"))
+    if item.evidence_type in {"in_vivo_model", "in_vitro_model", "functional_genomics"} and not _has_text(item.experiment_id):
+        issues.append(ValidationIssue("experiment_id", "is required for experimental evidence"))
+    if (_has_text(item.comparison) or _has_text(item.endpoint)) and not (_has_text(item.patient_cohort_id) or _has_text(item.experiment_id)):
+        issues.append(ValidationIssue("comparison", "and endpoint require patient_cohort_id or experiment_id context"))
+
+    if item.extraction_method == "mock" and item.interpretation is not None:
+        issues.append(ValidationIssue("interpretation", "must be null for v0.2.0 mock extraction"))
+
+    issues.extend(_lineage_issues(item, context))
+    return issues
+
+
 def validate_retrieval_attempt_intrinsic(attempt: models.RetrievalAttempt) -> list[ValidationIssue]:
     issues: list[ValidationIssue] = []
     for field in ("retrieval_attempt_id", "target_identifier", "disease_context", "source", "query", "status"):
@@ -128,8 +288,22 @@ def require_valid(item: models.EvidenceItem) -> None:
         raise ValidationError(issues)
 
 
-def require_finalizable(item: models.EvidenceItem) -> None:
+def require_semantically_valid(
+    item: models.EvidenceItem,
+    context: SemanticValidationContext | None = None,
+) -> None:
+    """Raise deterministic validation errors for semantic cross-field rules."""
+    issues = validate_semantic(item, context)
+    if issues:
+        raise ValidationError(issues)
+
+
+def require_finalizable(
+    item: models.EvidenceItem,
+    context: SemanticValidationContext | None = None,
+) -> None:
     issues = validate_intrinsic(item)
+    issues.extend(validate_semantic(item, context))
     if item.validation_status not in models.FINAL_VALIDATION_STATUSES:
         issues.append(ValidationIssue("validation_status", "must be finalized before hashing"))
     if item.evidence_family_algorithm_version != models.FAMILY_ALGORITHM_VERSION:

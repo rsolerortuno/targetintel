@@ -9,7 +9,10 @@ import json
 import math
 import re
 from types import MappingProxyType
-from typing import Any, Mapping
+from typing import TYPE_CHECKING, Any, Mapping
+
+if TYPE_CHECKING:
+    from .validation import SemanticValidationContext
 
 
 CANONICALIZATION_VERSION = "evidence-canonical-json-v1"
@@ -182,17 +185,24 @@ class EvidenceItem:
     def canonical_json(self) -> str:
         return canonical_json(self.hash_payload())
 
-    def calculate_record_hash(self) -> str:
+    def calculate_record_hash(self, context: "SemanticValidationContext | None" = None) -> str:
         from .validation import require_finalizable
 
-        require_finalizable(self)
+        require_finalizable(self, context)
         return sha256(self.canonical_json().encode("utf-8")).hexdigest()
 
-    def with_calculated_record_hash(self) -> "EvidenceItem":
-        return replace(self, record_hash=self.calculate_record_hash())
+    def with_calculated_record_hash(
+        self, context: "SemanticValidationContext | None" = None
+    ) -> "EvidenceItem":
+        return replace(self, record_hash=self.calculate_record_hash(context))
 
-    def has_exact_content(self, other: "EvidenceItem") -> bool:
-        return self.calculate_record_hash() == other.calculate_record_hash()
+    def has_exact_content(
+        self,
+        other: "EvidenceItem",
+        context: "SemanticValidationContext | None" = None,
+    ) -> bool:
+        """Compare finalized content, resolving derived links from ``context``."""
+        return self.calculate_record_hash(context) == other.calculate_record_hash(context)
 
 
 @dataclass(frozen=True)
