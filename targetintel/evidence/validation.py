@@ -1,4 +1,4 @@
-"""Deterministic intrinsic validation for evidence-layer contracts only."""
+"""Deterministic intrinsic and semantic validation for evidence-layer contracts."""
 
 from __future__ import annotations
 
