@@ -18,6 +18,7 @@ authors = [
 ]
 
 dependencies = [
+    "duckdb>=1.1,<2.0",
     "matplotlib>=3.8,<4.0",
     "numpy>=1.24,<3.0",
     "pandas>=2.0,<3.0",

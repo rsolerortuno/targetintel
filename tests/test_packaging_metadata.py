@@ -13,6 +13,7 @@ PYPROJECT_PATH = Path("pyproject.toml")
 ENVIRONMENT_PATH = Path("environment.yml")
 
 EXPECTED_RUNTIME_DEPENDENCIES = {
+    "duckdb",
     "matplotlib",
     "numpy",
     "pandas",

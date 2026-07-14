@@ -1,6 +1,7 @@
-"""Typed, dependency-free contracts for the optional evidence layer."""
+"""Typed contracts and optional immutable storage for the evidence layer."""
 
 from .models import EvidenceItem, ProvenanceStep, RetrievalAttempt
+from .store import EvidenceStore, HashCollisionError, ImmutableEvidenceError, InsertResult
 from .validation import (
     SemanticValidationContext,
     ValidationError,
@@ -13,6 +14,10 @@ __all__ = [
     "EvidenceItem",
     "ProvenanceStep",
     "RetrievalAttempt",
+    "EvidenceStore",
+    "HashCollisionError",
+    "ImmutableEvidenceError",
+    "InsertResult",
     "SemanticValidationContext",
     "ValidationError",
     "ValidationIssue",
