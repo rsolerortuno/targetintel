@@ -74,6 +74,16 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
 
+    run_parser.add_argument(
+        "--evidence-store",
+        type=Path,
+        default=None,
+        help=(
+            "Optional local immutable evidence DuckDB store used only to "
+            "decorate reports after deterministic ranking."
+        ),
+    )
+
     return parser
 
 
@@ -149,12 +159,17 @@ def main(
             f"Unsupported command: {args.command}"
         )
 
-    outputs = run_pipeline(
+    pipeline_kwargs = dict(
         page_size=args.page_size,
         max_pages=args.max_pages,
         refresh=args.refresh,
         top_n_per_mode=args.top_n_per_mode,
         validate=args.validate,
+    )
+    if args.evidence_store is not None:
+        pipeline_kwargs["evidence_store_path"] = args.evidence_store
+    outputs = run_pipeline(
+        **pipeline_kwargs,
     )
 
     _display_outputs(
