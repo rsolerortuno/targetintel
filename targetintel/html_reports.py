@@ -12,11 +12,12 @@ from __future__ import annotations
 
 from html import escape
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 import pandas as pd
 
 from targetintel.hypothesis_cards import recommend_next_experiment
+from targetintel.evidence.reporting import EvidenceCard
 
 
 DEFAULT_HTML_REPORT_DIR = Path("results/html_reports")
@@ -127,6 +128,52 @@ def _score_bar(score: Any) -> str:
         f'<div class="scorebar-fill" style="width: {width}%"></div>'
         "</div>"
     )
+
+
+def _make_evidence_html(evidence_card: EvidenceCard | None) -> str:
+    """Render source-linked stored observations, never a target-level conclusion."""
+    if evidence_card is None:
+        return ""
+    metrics = evidence_card.metrics
+    rows: list[str] = []
+    for item in evidence_card.items:
+        if item.quoted_span is not None and item.computed_support is not None:
+            support_type = "Hybrid quotation and computed support"
+            support = f"Quoted span: {item.quoted_span}\nComputed support: {item.computed_support}"
+        elif item.quoted_span is not None:
+            support_type, support = "Quoted source text", item.quoted_span
+        else:
+            support_type, support = "Computed/database support", item.computed_support or "not available"
+        confidence = "not reported" if item.extraction_confidence is None else f"{float(item.extraction_confidence):.3f}"
+        family = item.evidence_family or "ineligible for independence metrics"
+        rows.append(
+            "<tr>"
+            f"<td>{escape(item.evidence_id)}</td>"
+            f"<td>{escape(item.evidence_type)} / {escape(item.evidence_direction)}</td>"
+            f"<td>{escape(item.observation)}</td>"
+            f"<td>{escape(item.source)} ({escape(item.source_id)})</td>"
+            f"<td>{escape(support_type)}: {escape(support)}</td>"
+            f"<td>{escape(item.validation_status)}</td>"
+            f"<td>{escape(confidence)}<br><span class=\"note\">extraction-system, not scientific confidence</span></td>"
+            f"<td>{escape(family)}</td>"
+            "</tr>"
+        )
+    return f"""
+<section class="card">
+    <h2>Stored evidence observations</h2>
+    <p class="note">Source-linked observations only; they do not alter deterministic classification, scores, or rankings.</p>
+    <div class="grid">
+        <div class="metric"><div class="metric-label">Distinct records</div><div class="metric-value">{metrics.record_count}</div></div>
+        <div class="metric"><div class="metric-label">Known publications</div><div class="metric-value">{metrics.publication_count}</div></div>
+        <div class="metric"><div class="metric-label">Known experiments</div><div class="metric-value">{metrics.experiment_count}</div></div>
+        <div class="metric"><div class="metric-label">Known patient cohorts</div><div class="metric-value">{metrics.patient_cohort_count}</div></div>
+        <div class="metric"><div class="metric-label">Independence-eligible root families</div><div class="metric-value">{metrics.independent_family_count}</div></div>
+        <div class="metric"><div class="metric-label">Records ineligible for family metrics</div><div class="metric-value">{metrics.ineligible_record_count}</div></div>
+    </div>
+    <table><thead><tr><th>Record</th><th>Type / direction</th><th>Observation</th><th>Source</th><th>Support</th><th>Status</th><th>Extraction confidence</th><th>Family</th></tr></thead>
+    <tbody>{''.join(rows)}</tbody></table>
+</section>
+"""
 
 
 def get_report_css() -> str:
@@ -318,7 +365,10 @@ a:hover {
 """
 
 
-def make_target_html_report(row: pd.Series) -> str:
+def make_target_html_report(
+    row: pd.Series,
+    evidence_card: EvidenceCard | None = None,
+) -> str:
     """
     Generate one standalone HTML target report.
     """
@@ -376,6 +426,8 @@ def make_target_html_report(row: pd.Series) -> str:
         </div>
     </div>
 </section>
+
+{_make_evidence_html(evidence_card)}
 
 <section class="card">
     <h2>Stable TargetIntel-IO classification</h2>
@@ -517,6 +569,7 @@ def make_target_html_report(row: pd.Series) -> str:
 def write_target_html_report(
     row: pd.Series,
     output_dir: str | Path = DEFAULT_HTML_REPORT_DIR,
+    evidence_card: EvidenceCard | None = None,
 ) -> Path:
     """
     Write one standalone HTML report.
@@ -528,7 +581,7 @@ def write_target_html_report(
     output_path = output_dir / f"{symbol}.html"
 
     output_path.write_text(
-        make_target_html_report(row),
+        make_target_html_report(row, evidence_card=evidence_card),
         encoding="utf-8",
     )
 
@@ -701,6 +754,7 @@ def write_top_html_reports(
     ranked_df: pd.DataFrame,
     output_dir: str | Path = DEFAULT_HTML_REPORT_DIR,
     top_n_per_mode: int = 10,
+    evidence_cards: Mapping[str, EvidenceCard] | None = None,
 ) -> list[Path]:
     """
     Write HTML reports for the union of top-N targets across all modes.
@@ -743,7 +797,11 @@ def write_top_html_reports(
     written_paths = []
 
     for _, row in selected_df.iterrows():
-        written_paths.append(write_target_html_report(row, output_dir=output_dir))
+        written_paths.append(write_target_html_report(
+            row,
+            output_dir=output_dir,
+            evidence_card=(evidence_cards or {}).get(str(row["target_symbol"])),
+        ))
 
     index_path = write_html_index(
         ranked_df,

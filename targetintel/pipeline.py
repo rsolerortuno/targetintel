@@ -19,6 +19,7 @@ from targetintel.feature_table import (
     build_feature_table,
     save_feature_table,
 )
+from targetintel.evidence.pipeline_integration import load_evidence_cards
 from targetintel.html_reports import (
     write_top_html_reports,
 )
@@ -96,6 +97,7 @@ def run_core_pipeline(
     max_pages: int = 3,
     refresh: bool = False,
     top_n_per_mode: int = 10,
+    evidence_store_path: str | Path | None = None,
     project_root: Path = PROJECT_ROOT,
 ) -> PipelineOutputs:
     """
@@ -199,11 +201,19 @@ def run_core_pipeline(
     print()
     print("[3/5] Generating target hypothesis cards")
 
-    card_paths = write_top_target_cards(
-        ranked_df,
-        output_dir=target_cards_dir,
-        top_n_per_mode=top_n_per_mode,
+    evidence_cards = (
+        load_evidence_cards(evidence_store_path, ranked_df["target_symbol"].tolist())
+        if evidence_store_path is not None
+        else {}
     )
+
+    card_kwargs = {
+        "output_dir": target_cards_dir,
+        "top_n_per_mode": top_n_per_mode,
+    }
+    if evidence_cards:
+        card_kwargs["evidence_cards"] = evidence_cards
+    card_paths = write_top_target_cards(ranked_df, **card_kwargs)
 
     print(
         f"Generated {len(card_paths)} Markdown cards in: "
@@ -213,11 +223,13 @@ def run_core_pipeline(
     print()
     print("[4/5] Generating HTML reports")
 
-    html_paths = write_top_html_reports(
-        ranked_df,
-        output_dir=html_reports_dir,
-        top_n_per_mode=top_n_per_mode,
-    )
+    html_kwargs = {
+        "output_dir": html_reports_dir,
+        "top_n_per_mode": top_n_per_mode,
+    }
+    if evidence_cards:
+        html_kwargs["evidence_cards"] = evidence_cards
+    html_paths = write_top_html_reports(ranked_df, **html_kwargs)
 
     print(
         f"Generated {len(html_paths)} HTML files in: "
@@ -384,6 +396,7 @@ def run_pipeline(
     refresh: bool = False,
     top_n_per_mode: int = 10,
     validate: bool = False,
+    evidence_store_path: str | Path | None = None,
     project_root: Path = PROJECT_ROOT,
 ) -> PipelineOutputs:
     """Run the complete workflow, optionally including validation."""
@@ -392,6 +405,7 @@ def run_pipeline(
         max_pages=max_pages,
         refresh=refresh,
         top_n_per_mode=top_n_per_mode,
+        evidence_store_path=evidence_store_path,
         project_root=project_root,
     )
 
