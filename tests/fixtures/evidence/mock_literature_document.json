@@ -1,0 +1,25 @@
+{
+  "fixture_id": "mock_literature_document_v1",
+  "source": "Frozen mock literature fixture",
+  "source_id": "mock-lit-doc-001",
+  "target_symbol": "MOCK1",
+  "target_id": "MOCK:1",
+  "disease_name": "mock melanoma context",
+  "disease_id": "MONDO:MOCK",
+  "treatment_name": "mock treatment",
+  "treatment_id": "MOCK:TX",
+  "document_location": "frozen-results:section-1",
+  "source_text": "Artificial fixture document. MOCK1 observation alpha. MOCK1 observation beta. MOCK1 observation gamma.",
+  "structured_content": null,
+  "publication_id": "PUB:MOCK-LIT-001",
+  "source_dataset_id": null,
+  "patient_cohort_id": "cohort:mock-lit-a",
+  "experiment_id": null,
+  "retrieved_at": "2026-07-15T10:00:00Z",
+  "data_release": "fixture-v1",
+  "candidates": [
+    {"fixture_candidate_id": "03-limiting", "evidence_type": "clinical_cohort", "evidence_direction": "limits_target", "observation": "MOCK1 observation gamma.", "quoted_span": "MOCK1 observation gamma.", "computed_support": null, "species": "human", "model_system": "patient_tumor_biopsy", "sample_context": "artificial fixture samples", "effect_size": null, "effect_size_metric": null, "uncertainty": null, "uncertainty_metric": null, "sample_size": null, "extraction_confidence": 1.0},
+    {"fixture_candidate_id": "01-supporting", "evidence_type": "clinical_cohort", "evidence_direction": "supports_biomarker", "observation": "MOCK1 observation alpha.", "quoted_span": "MOCK1 observation alpha.", "computed_support": null, "species": "human", "model_system": "patient_tumor_biopsy", "sample_context": "artificial fixture samples", "effect_size": null, "effect_size_metric": null, "uncertainty": null, "uncertainty_metric": null, "sample_size": null, "extraction_confidence": 1.0},
+    {"fixture_candidate_id": "02-contradictory", "evidence_type": "clinical_cohort", "evidence_direction": "contradicts_target", "observation": "MOCK1 observation beta.", "quoted_span": "MOCK1 observation beta.", "computed_support": null, "species": "human", "model_system": "patient_tumor_biopsy", "sample_context": "artificial fixture samples", "effect_size": null, "effect_size_metric": null, "uncertainty": null, "uncertainty_metric": null, "sample_size": null, "extraction_confidence": 1.0}
+  ]
+}

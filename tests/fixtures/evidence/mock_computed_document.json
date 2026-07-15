@@ -1,0 +1,23 @@
+{
+  "fixture_id": "mock_computed_document_v1",
+  "source": "Frozen mock computed fixture",
+  "source_id": "mock-computed-doc-001",
+  "target_symbol": "MOCK2",
+  "target_id": "MOCK:2",
+  "disease_name": "mock melanoma context",
+  "disease_id": "MONDO:MOCK",
+  "treatment_name": null,
+  "treatment_id": null,
+  "document_location": "fixtures/mock_computed_document.json:structured_content.rows[0]",
+  "source_text": null,
+  "structured_content": {"rows": [{"fixture_row": "row-001", "observation": "Artificial computed fixture measurement."}]},
+  "publication_id": null,
+  "source_dataset_id": "dataset:mock-computed-v1",
+  "patient_cohort_id": "cohort:mock-computed-a",
+  "experiment_id": "experiment:mock-computed-1",
+  "retrieved_at": "2026-07-15T11:00:00Z",
+  "data_release": "fixture-v1",
+  "candidates": [
+    {"fixture_candidate_id": "01-computed", "evidence_type": "functional_genomics", "evidence_direction": "neutral", "observation": "Artificial computed fixture measurement.", "quoted_span": null, "computed_support": "fixture=mock_computed_document_v1; structured_content.rows[0]; transformation=none", "comparison": "fixture group A versus fixture group B", "endpoint": "fixture measurement", "data_modality": "mock_assay", "species": "human", "model_system": "cell_line", "sample_context": "artificial fixture samples", "effect_size": -0.25, "effect_size_metric": "fixture_effect", "uncertainty": 0.1, "uncertainty_metric": "fixture_uncertainty", "sample_size": 3, "extraction_confidence": 1.0}
+  ]
+}
