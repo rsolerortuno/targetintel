@@ -1,55 +1,37 @@
 # TargetIntel-IO
 
-[![Tests](https://github.com/rsolerortuno/TargetIntel-IO/actions/workflows/tests.yml/badge.svg)](https://github.com/rsolerortuno/TargetIntel-IO/actions/workflows/tests.yml)
-[![Latest release](https://img.shields.io/github/v/release/rsolerortuno/TargetIntel-IO)](https://github.com/rsolerortuno/TargetIntel-IO/releases/latest)
-[![Python](https://img.shields.io/badge/Python-3.11-3776AB.svg)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Tests](https://github.com/rsolerortuno/TargetIntel-IO/actions/workflows/tests.yml/badge.svg)](https://github.com/rsolerortuno/TargetIntel-IO/actions/workflows/tests.yml) [![Latest release](https://img.shields.io/github/v/release/rsolerortuno/TargetIntel-IO)](https://github.com/rsolerortuno/TargetIntel-IO/releases/latest) [![Python](https://img.shields.io/badge/Python-3.11-3776AB.svg)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **Explainable, therapeutic-intent-aware target intelligence for anti-PD-1-resistant melanoma.**
 
-TargetIntel-IO is a reproducible scientific software project for classifying,
-prioritizing, and explaining candidate therapeutic targets and biomarkers. It
-combines a deterministic translational-biology baseline with an emerging,
-auditable evidence layer designed for literature, functional genomics,
-single-cell, spatial, and clinical-response data.
+TargetIntel-IO is a reproducible scientific software project for classifying, prioritizing, and explaining candidate therapeutic targets and biomarkers. It combines a deterministic translational-biology baseline with an emerging, auditable evidence layer for literature, functional genomics, single-cell, spatial, and clinical-response data.
 
-The project is built around one central question:
-
-> **Not simply “What is the best target?” but “Best candidate for which
-> therapeutic intent, supported by which evidence, and with which
-> limitations?”**
-
----
+> **Not simply “What is the best target?” but “Best candidate for which therapeutic intent, supported by which evidence, and with which limitations?”**
 
 ## Project status
-
-TargetIntel-IO currently has two complementary layers:
 
 | Layer | Status | Purpose |
 |---|---|---|
 | **v0.1.3 deterministic baseline** | Available | Transparent target classification, therapeutic-intent ranking, benchmark evaluation, hypothesis cards, reports, and sensitivity analysis |
-| **v0.2.0 evidence-layer development** | Partially implemented on `main` | Typed evidence contracts, semantic validation, immutable provenance, DuckDB storage, revision history, retrieval auditing, and future literature/LLM integration |
+| **v0.2.0 evidence layer** | In development on `main` | Typed evidence contracts, semantic validation, immutable provenance, DuckDB storage, revision history, retrieval auditing, and future grounded literature/LLM integration |
 
-The production LLM extractor and literature copilot are **not yet implemented**.
-The current v0.2.0 work establishes the traceable data and validation substrate
-required to introduce them safely.
+The production LLM extractor and literature copilot are **not yet implemented**. The current v0.2.0 work establishes the traceable data, validation, and storage substrate required to introduce them safely.
 
-### Implemented in the v0.2.0 development line
+### Implemented in v0.2.0
 
 - immutable `EvidenceItem`, `ProvenanceStep`, and `RetrievalAttempt` contracts;
-- controlled scientific vocabularies and deterministic serialization;
+- controlled vocabularies and deterministic serialization;
 - canonical JSON and SHA-256 content hashing;
 - intrinsic, semantic, and cross-field validation;
 - quoted-span requirements for literature-derived evidence;
-- auditable support requirements for computed evidence;
-- citation-verification and manual-curation provenance guards;
+- provenance guards for computed and manually curated evidence;
 - derived-evidence lineage and cycle validation;
-- explicit evidence-family eligibility fields;
+- explicit evidence-family eligibility metadata;
 - immutable DuckDB evidence storage;
-- append-only provenance, audit events, and revision links;
+- append-only provenance, audit events, and caller-driven revision links;
 - exact-duplicate detection and hash-collision protection;
 - independent recording of retrieval success, zero results, failure,
-  non-execution, and absent retrieval state;
+non-execution, and absent retrieval state;
 - deterministic Parquet snapshot export and verification.
 
 ### Next milestones
@@ -59,18 +41,14 @@ required to introduce them safely.
 - literal quotation and citation verification;
 - evidence-family construction and true-duplicate assessment;
 - evidence cards integrated into the existing reports;
-- provider-agnostic LLM extraction and target-level grounded synthesis;
-- DepMap/CRISPR, single-cell, spatial, and clinical-cohort evidence adapters.
+- provider-agnostic LLM extraction and grounded target-level synthesis;
+- DepMap/CRISPR, single-cell, spatial, and clinical-cohort adapters.
 
-See the full [TargetIntel-IO 2.0 roadmap](docs/ROADMAP_2_0.md) and the detailed
-[v0.2.0 evidence-layer specification](docs/specs/v0.2.0_evidence_layer.md).
-
----
+See the [TargetIntel-IO 2.0 roadmap](docs/ROADMAP_2_0.md) and the [v0.2.0 evidence-layer specification](docs/specs/v0.2.0_evidence_layer.md).
 
 ## Why this project exists
 
-A biologically relevant gene is not automatically a good drug target. Depending
-on the evidence and therapeutic question, the same gene may instead be:
+A biologically relevant gene is not automatically a good drug target. The same gene may instead be:
 
 - a direct therapeutic target;
 - an anti-PD-1 combination target;
@@ -80,11 +58,7 @@ on the evidence and therapeutic question, the same gene may instead be:
 - an immune-context signal;
 - or a poor direct therapeutic candidate.
 
-TargetIntel-IO makes these distinctions explicit. It preserves the reasoning
-behind each classification and ranking rather than returning a single opaque
-score.
-
----
+TargetIntel-IO makes these distinctions explicit and preserves the reasoning behind each classification and ranking rather than returning one opaque score.
 
 ## Architecture
 
@@ -100,7 +74,7 @@ flowchart TD
     R2 --> REP
     R3 --> REP
 
-    LIT[Scientific literature] -. v0.2 development .-> EI[Normalized EvidenceItems]
+    LIT[Scientific literature] -. v0.2 .-> EI[Normalized EvidenceItems]
     DEP[DepMap / CRISPR] -. roadmap .-> EI
     SC[Single-cell / spatial] -. roadmap .-> EI
     CLIN[Clinical cohorts] -. roadmap .-> EI
@@ -109,28 +83,22 @@ flowchart TD
     DB --> EVR[Evidence-aware reports]
     DB -. future .-> LLM[Grounded LLM reasoner and critic]
     LLM --> EVR
-
     REP --> EVR
 ```
 
-### Design principle: evidence before interpretation
+### Evidence before interpretation
 
-The LLM is not intended to be the source of truth. Future model-generated
-interpretations must be derived only from stored, source-linked evidence.
-TargetIntel-IO therefore separates:
+The LLM is not intended to be the source of truth. Future model-generated interpretations must be derived only from stored, source-linked evidence. TargetIntel-IO separates:
 
-1. **retrieved or computed observations**;
-2. **system-generated interpretations**;
-3. **target-level recommendations**.
+1. retrieved or computed observations;
+2. system-generated interpretations;
+3. target-level recommendations.
 
-A recommendation must remain traceable to the exact observations, quotations,
-datasets, cohorts, experiments, and transformations that support it.
+Recommendations must remain traceable to the exact observations, quotations, datasets, cohorts, experiments, and transformations that support them.
 
----
+## What the deterministic workflow produces
 
-## What the current workflow produces
-
-For every candidate, the deterministic workflow generates:
+For every candidate, the workflow generates:
 
 - a stable biological and translational role;
 - a therapeutic direction;
@@ -143,20 +111,13 @@ For every candidate, the deterministic workflow generates:
 - browsable HTML reports;
 - summary figures and rank-shift analyses.
 
-The three current ranking modes are:
-
 | Mode | Prioritizes |
 |---|---|
 | **Antibody / IO combination** | Surface-accessible checkpoints, myeloid targets, suppressive immune axes, and combination rationale |
 | **Resistance biomarker** | Antigen-presentation loss, IFNγ resistance, immune exclusion, and patient-stratification potential |
 | **Small molecule** | Tumor-intrinsic drivers, kinases, oncogenic pathways, and small-molecule tractability |
 
----
-
 ## Evidence-layer example
-
-A future literature or computational adapter will emit records using the same
-core contract:
 
 ```python
 EvidenceItem(
@@ -177,20 +138,14 @@ EvidenceItem(
     model_system="patient_tumor_biopsy",
     extraction_method="llm",
     validation_status="citation_verified",
-    # additional provenance, family, timestamp, and integrity fields omitted
 )
 ```
 
-The evidence layer is designed to reject records that claim verification
-without the required quotation, support, provenance, identifiers, and
-validation history.
-
----
+The evidence layer rejects records that claim verification without the required quotation, support, provenance, identifiers, and validation history. Sharing `source` and `source_id` does not automatically make two observations revisions of one another; revision links are explicit and caller-driven.
 
 ## Human-supervised multi-LLM development
 
-Recent v0.2.0 development uses a **human-supervised multi-agent software
-workflow**, while keeping scientific decisions and merges under human control.
+Recent v0.2.0 work uses a human-supervised multi-agent development workflow:
 
 ```mermaid
 flowchart LR
@@ -202,25 +157,20 @@ flowchart LR
     A --> H2[Human approval and merge]
 ```
 
-The repository includes shared agent instructions that define non-negotiable
-scientific and engineering constraints:
+Shared agent instructions require the system to:
 
 - never invent biological evidence, numerical values, references, or API data;
 - never present association as proof of causality;
-- never describe the internal benchmark as independent biological validation;
 - preserve observation separately from LLM interpretation;
 - prevent future LLM components from silently changing baseline rankings;
 - protect secrets and identifiable patient-level information;
-- require tests and explicit reporting of unresolved failures;
-- require human approval before publishing changes.
+- report unresolved failures explicitly;
+- require human approval before publication or merge.
 
 See [`AGENTS.md`](AGENTS.md) and [`CLAUDE.md`](CLAUDE.md).
 
-> Agentic AI is currently used to help engineer and review the platform. A
-> production scientific LLM agent is part of the roadmap, not a completed
-> feature.
-
----
+> Agentic AI currently helps engineer and review the platform. A production
+> scientific LLM agent remains a roadmap feature.
 
 ## Quick start
 
@@ -229,7 +179,6 @@ See [`AGENTS.md`](AGENTS.md) and [`CLAUDE.md`](CLAUDE.md).
 ```bash
 git clone https://github.com/rsolerortuno/TargetIntel-IO.git
 cd TargetIntel-IO
-
 conda env create -f environment.yml
 conda activate targetintel
 ```
@@ -239,44 +188,20 @@ conda activate targetintel
 ```bash
 git clone https://github.com/rsolerortuno/TargetIntel-IO.git
 cd TargetIntel-IO
-
 python -m venv .venv
 source .venv/bin/activate
-
 python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 ```
 
----
-
 ## Run the deterministic workflow
-
-Generate the feature table, therapeutic-intent rankings, target cards, HTML
-reports, and figures:
 
 ```bash
 targetintel run
-```
-
-Run the workflow with the internal benchmark and weight-sensitivity analysis:
-
-```bash
 targetintel run --validate
-```
-
-Force a new Open Targets request rather than using the local cache:
-
-```bash
 targetintel run --refresh
-```
-
-See all options:
-
-```bash
 targetintel run --help
 ```
-
----
 
 ## Main outputs
 
@@ -294,65 +219,33 @@ results/
 └── sensitivity/
 ```
 
-After a successful run, open:
-
-```text
-results/html_reports/index.html
-```
-
-Versioned examples are available under:
+Versioned examples:
 
 - [`examples/html_reports/`](examples/html_reports/)
 - [`examples/figures/`](examples/figures/)
 - [`examples/benchmark/`](examples/benchmark/README.md)
 - [`examples/sensitivity/`](examples/sensitivity/README.md)
 
----
-
 ## How the deterministic baseline works
 
-### 1. Public evidence retrieval
-
-The workflow retrieves melanoma-associated targets from the Open Targets
-GraphQL API and caches the response locally for reproducibility.
-
-### 2. Translational feature construction
-
-Each target is annotated using:
-
-- disease-association evidence;
-- anti-PD-1 resistance-axis membership;
-- therapeutic modality fit;
-- tractability and known-drug evidence;
-- safety and contradiction flags;
-- evidence completeness and confidence.
-
-### 3. Stable role classification
-
-Each candidate receives one stable role independent of ranking mode. This
-explicitly separates:
+1. **Public evidence retrieval:** melanoma-associated targets are retrieved from
+the Open Targets GraphQL API and cached locally.
+2. **Feature construction:** targets are annotated with disease association,
+resistance-axis membership, modality fit, tractability, known drugs, safety, contradictions, completeness, and confidence.
+3. **Stable role classification:** each candidate receives one role independent
+of ranking mode.
+4. **Therapeutic-intent scoring:** candidates are scored separately for
+antibody/IO, biomarker, and small-molecule use.
+5. **Human-readable outputs:** rankings are converted into cards, reports,
+figures, benchmark summaries, and machine-readable validation outputs.
 
 ```text
 therapeutic target ≠ biomarker ≠ resistance mechanism ≠ contextual marker
 ```
 
-### 4. Therapeutic-intent-aware scoring
-
-The same candidate is scored differently for antibody/IO, biomarker, and
-small-molecule use. Every final score retains its component values, penalties,
-role interpretation, and supporting or opposing evidence.
-
-### 5. Human-readable outputs
-
-The workflow converts the ranked table into hypothesis cards, HTML reports,
-figures, benchmark summaries, and machine-readable validation outputs.
-
----
-
 ## Internal benchmark snapshot
 
-TargetIntel-IO includes a curated 56-target benchmark for internal rule-based
-sanity validation.
+TargetIntel-IO includes a curated 56-target benchmark for internal rule-based sanity validation.
 
 | Metric | Result |
 |---|---:|
@@ -367,44 +260,27 @@ sanity validation.
 | Mean top-10 recall | 58.1% |
 | Mean top-20 recall | 79.5% |
 
-Only **25/56 benchmark targets (44.6%)** appeared among the top 300 melanoma
-associations retrieved from Open Targets. The remaining targets were added to
-the augmented benchmark universe without claiming that Open Targets recovered
-them.
+Only **25/56 (44.6%)** benchmark targets appeared among the top 300 melanoma associations retrieved from Open Targets. TargetIntel evaluation coverage therefore does not mean that Open Targets independently recovered every target.
 
-The benchmark's expected roles were curated using the same translational
-framework represented by the implemented rules. The results therefore measure
-implementation consistency and internal sanity, **not independent biological,
-clinical, or prospective accuracy**.
+The benchmark produced **100.0% stable-role accuracy**, **91.1% strict primary-intent accuracy**, and **100.0%** acceptable-intent accuracy. Expected roles and acceptable alternatives were internally curated rather than derived from an independent benchmark. These results measure implementation consistency, not independent biological accuracy.
 
-Complete results and per-target predictions are available in the
-[versioned benchmark snapshot](examples/benchmark/README.md).
-
----
+No external patient-level responder/non-responder cohort was used for this internal benchmark. The complete results are available in the [versioned benchmark snapshot](examples/benchmark/README.md).
 
 ## Weight sensitivity
 
-The local sensitivity analysis evaluates **42 scenarios** in which one scoring
-weight is changed by `-20%` or `+20%` and all weights are subsequently
-renormalized.
+The local analysis evaluates **42 scenarios**, changing one scoring weight by `-20%` or `+20%` before renormalization.
 
-- Worst-case top-5 retention:
-  **antibody/IO 100%, biomarker 100%, small-molecule 80%**.
-- Worst-case top-10 retention:
-  **antibody/IO 90%, biomarker 100%, small-molecule 90%**.
-- Worst-case top-20 retention:
-  **antibody/IO 100%, biomarker 95%, small-molecule 100%**.
-- Minimum observed Spearman rank correlation: **0.8762**.
-- Maximum absolute change in strict primary-intent accuracy:
-  **5.36 percentage points**.
+Worst-case top-5 retention was: **antibody/IO 100%, biomarker 100%, small-molecule 80%**.
+
+Worst-case top-10 retention was: **antibody/IO 90%, biomarker 100%, small-molecule 90%**.
+
+Worst-case top-20 retention was: **antibody/IO 100%, biomarker 95%, small-molecule 100%**.
+
+The minimum observed Spearman correlation was **0.8762**. The maximum absolute change in strict primary-intent accuracy was **5.36 percentage points**; the maximum acceptable-intent change was **3.57 percentage points**; and the maximum cross-intent-specificity change was **5.66 percentage points**.
 
 ![Worst-case ranking stability](examples/sensitivity/sensitivity_overview.png)
 
-This analysis shows local stability around the selected scoring configuration.
-It does not establish that the rankings are independent of weight selection or
-that the weights are biologically optimal.
-
----
+This is a local stability analysis. It does not prove that the selected weights are biologically optimal or that the rankings are independent of weight choice.
 
 ## Reproducibility and software quality
 
@@ -414,14 +290,12 @@ The project includes:
 - compatible dependency ranges in `pyproject.toml`;
 - a Conda environment definition;
 - an exact Python 3.11 lockfile with package hashes;
-- local API caching;
 - deterministic ranking and tie-breaking;
 - versioned benchmark and sensitivity snapshots;
-- SHA-256 snapshot manifests;
 - GitHub Actions continuous integration;
 - offline unit and regression tests;
-- immutable evidence storage and Parquet snapshot verification;
-- explicit scientific and AI-agent safety instructions.
+- immutable evidence storage and Parquet verification;
+- scientific and AI-agent safety instructions.
 
 Install the exact locked environment used by CI:
 
@@ -436,92 +310,50 @@ python -m pip install \
   --editable .
 ```
 
-Run the test suite:
+Run tests:
 
 ```bash
 python -m pytest tests -q
 ```
 
----
-
 ## Repository map
 
 ```text
-configs/            Disease context, resistance axes, benchmark, and scoring YAMLs
-targetintel/        Reusable Python package and command-line workflow
-targetintel/evidence/
-                    Typed evidence contracts, validation, and immutable storage
-scripts/            Individual pipeline and snapshot-management commands
-tests/              Unit, integration, and regression tests
-examples/           Versioned reports, figures, benchmark, and sensitivity outputs
-docs/               Architecture, roadmap, and evidence-layer specifications
-data/               Local cached and processed data, excluded from version control
-results/            Generated local outputs, excluded from version control
+configs/              Disease context, resistance axes, benchmark, scoring
+targetintel/          Reusable Python package and command-line workflow
+targetintel/evidence/ Typed evidence contracts, validation, immutable storage
+scripts/              Pipeline and snapshot-management commands
+tests/                Unit, integration, and regression tests
+examples/             Versioned reports, figures, benchmark, sensitivity
+docs/                 Architecture, roadmap, evidence-layer specifications
+data/                 Local cached and processed data; not versioned
+results/              Generated local outputs; not versioned
 ```
-
----
 
 ## Scope and limitations
 
-TargetIntel-IO is a hypothesis-generation and target-triage framework. It does
-not provide:
+TargetIntel-IO is a hypothesis-generation and target-triage framework. It does not provide clinical recommendations, validated therapeutic targets, qualified biomarkers, causal biological proof, a diagnostic system, patient-level treatment predictions, or medical advice.
 
-- clinical recommendations;
-- validated therapeutic targets;
-- qualified biomarkers;
-- causal biological proof;
-- a clinically validated diagnostic system;
-- patient-level treatment predictions;
-- or medical advice.
+The current deterministic implementation focuses on anti-PD-1-resistant melanoma. The v0.2.0 evidence layer provides infrastructure rather than a completed literature copilot. Production extraction, real LLM-generated scientific interpretations, DepMap integration, single-cell/spatial analysis, patient-response modelling, and knowledge-graph inference remain future work.
 
-The current deterministic implementation is specific to anti-PD-1-resistant
-melanoma. Association evidence does not establish causality, tractability,
-safety, clinical benefit, or successful combination therapy.
+All generated hypotheses require independent experimental, translational, and clinical validation.
 
-The v0.2.0 evidence layer currently provides infrastructure rather than a
-completed literature copilot. Real LLM-generated scientific interpretations,
-production literature extraction, DepMap integration, single-cell/spatial
-analysis, patient-response modelling, and knowledge-graph inference remain
-future work.
+## Data governance
 
-All generated hypotheses require independent experimental, translational, and
-clinical validation.
-
----
-
-## Data sources and data governance
-
-The current deterministic workflow uses public data and curated public-domain
-biological knowledge. Its principal external source is the Open Targets
-Platform GraphQL API.
-
-No confidential, proprietary, company-internal, or identifiable patient data
-is included in the repository. Local caches, generated evidence databases, and
-analysis outputs are excluded from version control by default.
-
----
+The current workflow uses public data and curated public-domain biological knowledge, principally the Open Targets Platform GraphQL API. No confidential, proprietary, company-internal, or identifiable patient data is included. Generated databases, local caches, and outputs are excluded from version control by default.
 
 ## Citation
-
 ```text
 Soler Ortuño R. TargetIntel-IO: Explainable therapeutic-intent-aware target
 intelligence for anti-PD-1-resistant melanoma.
 ```
 
----
-
 ## Author
-
 **Rafael Soler Ortuño, PhD**
 
-Computational biologist working at the intersection of immuno-oncology,
-biomarker discovery, patient stratification, multi-omics, single-cell and
-spatial transcriptomics, scientific software engineering, and AI-assisted drug
-discovery.
+Computational biologist working across immuno-oncology, biomarker discovery, patient stratification, multi-omics, single-cell and spatial transcriptomics, scientific software engineering, and AI-assisted drug discovery.
 
 [LinkedIn](https://www.linkedin.com/in/rafael-soler-ortuno/)
-
----
 
 ## License
 
