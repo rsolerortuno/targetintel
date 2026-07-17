@@ -56,6 +56,14 @@ def test_response_identity_excludes_operational_time_and_round_trips():
         first.raw_text = "no"
 
 
+def test_provenance_can_retain_requested_model_separately_from_returned_model():
+    provenance = ProviderProvenance("request-1", "provider", "returned-model", None, "extract", "1", "candidate", "1", "task", "document", LLMResultStatus.SUCCESS, requested_model_name="requested-model")
+    restored = ProviderProvenance.from_dict(provenance.to_dict())
+    assert restored.requested_model_name == "requested-model"
+    with pytest.raises(ValueError, match="requested_model_name"):
+        ProviderProvenance("request-1", "provider", "returned-model", None, "extract", "1", "candidate", "1", "task", "document", LLMResultStatus.SUCCESS, requested_model_name=" ")
+
+
 def test_response_requires_visible_failure_and_sanitizes_secret():
     provenance = ProviderProvenance("request-1", "mock", "model", None, "extract", "1", "candidate", "1", "task", "document", LLMResultStatus.TIMEOUT, ProviderErrorCategory.TIMEOUT)
     response = LLMResponse(provenance, error_message="Authorization: Bearer private-token")

@@ -1,0 +1,6 @@
+{
+  "incomplete": {"model": "model", "message": {"role": "assistant", "content": "partial"}, "done": false},
+  "provider_error": {"error": "internal details must not escape"},
+  "missing_message": {"model": "model", "done": true},
+  "missing_content": {"model": "model", "message": {"role": "assistant"}, "done": true}
+}

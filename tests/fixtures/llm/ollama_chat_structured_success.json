@@ -1,0 +1,9 @@
+{
+  "model": "llama3.2:latest",
+  "message": {"role": "assistant", "content": "{\"answer\":\"offline\"}"},
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 1000000,
+  "prompt_eval_count": 3,
+  "eval_count": 2
+}

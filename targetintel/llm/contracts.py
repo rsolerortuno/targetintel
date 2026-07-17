@@ -177,12 +177,15 @@ class ProviderProvenance:
     result_status: LLMResultStatus
     error_category: ProviderErrorCategory | None = None
     contract_version: str = CONTRACT_VERSION
+    requested_model_name: str | None = None
 
     def __post_init__(self) -> None:
         for name in ("request_id", "provider_name", "model_name", "prompt_id", "prompt_version", "response_schema_id", "response_schema_version", "task_type", "source_document_id", "contract_version"):
             _required(getattr(self, name), name)
         if self.model_version is not None:
             _required(self.model_version, "model_version")
+        if self.requested_model_name is not None:
+            _required(self.requested_model_name, "requested_model_name")
 
     def to_dict(self) -> dict[str, Any]:
         result = {name: getattr(self, name) for name in self.__dataclass_fields__}
