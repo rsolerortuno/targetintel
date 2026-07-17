@@ -1,0 +1,7 @@
+{
+  "request-malformed": {"status": "malformed_output", "raw_text": "{not json", "error_category": "malformed_provider_response", "error_message": "schema parse failed"},
+  "request-retry": {"status": "retryable_failure", "error_category": "retryable_provider_failure", "error_message": "temporary fixture failure"},
+  "request-permanent": {"status": "permanent_failure", "error_category": "permanent_provider_failure", "error_message": "permanent fixture failure"},
+  "request-timeout": {"status": "timeout", "error_category": "timeout", "error_message": "fixture timeout"},
+  "request-not-executed": {"status": "not_executed", "error_category": "not_executed", "error_message": "fixture not executed"}
+}

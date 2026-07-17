@@ -1,0 +1,10 @@
+{
+  "request-success": {
+    "status": "success",
+    "raw_text": "fixture-controlled output",
+    "structured_output": {"fixture": "success"},
+    "finish_reason": "stop",
+    "token_usage": {"input": 12, "output": 4},
+    "latency_ms": 7
+  }
+}
