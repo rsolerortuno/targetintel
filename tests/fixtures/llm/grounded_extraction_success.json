@@ -1,0 +1,1 @@
+{"schema_id":"targetintel.grounded_extraction","schema_version":"1.0.0","source_document_id":"doc-1","claims":[{"claim_text":"B2M loss was observed.","quoted_span":"B2M loss was observed","quote_start":0,"quote_end":21,"stance":"supports"}]}
