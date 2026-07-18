@@ -1,0 +1,4 @@
+{
+  "failure_statuses": ["timeout", "malformed_output", "permanent_failure"],
+  "forbidden_response_fields": ["reasoning", "chain_of_thought"]
+}

@@ -1,0 +1,6 @@
+{
+  "schema_id": "targetintel.grounded_target_synthesis",
+  "schema_version": "1.0.0",
+  "research_only": true,
+  "non_clinical_use": true
+}
