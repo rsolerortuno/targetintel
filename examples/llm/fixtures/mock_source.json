@@ -1,0 +1,5 @@
+{
+  "source_document_id": "DEMO_DATASET:source-001",
+  "source_text": "In DEMO_COHORT with DEMO_DISEASE, DEMO_TARGET was associated with the synthetic response observation. The DEMO_COHORT was small and the observation is uncertain. A separate DEMO_COHORT comparison found no significant difference for DEMO_TARGET.",
+  "provenance": {"source": "DEMO_DATASET", "source_id": "DEMO_DATASET:source-001"}
+}

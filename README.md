@@ -13,28 +13,31 @@ TargetIntel-IO is a reproducible scientific software project for classifying, pr
 | Layer | Status | Purpose |
 |---|---|---|
 | **v0.1.3 deterministic baseline** | Available | Transparent target classification, therapeutic-intent ranking, benchmark evaluation, hypothesis cards, reports, and sensitivity analysis |
-| **v0.2.0 Common Evidence Layer** | Complete | Typed contracts, validation, immutable provenance, DuckDB/Parquet storage, Europe PMC retrieval, deterministic mock extraction, verification, duplicate/family handling, and post-ranking report decoration |
+| **v0.2.0 Common Evidence Layer** | Complete | Typed contracts, validation, immutable provenance, storage, retrieval, and post-ranking report decoration |
+| **v0.3.0 grounded-evidence infrastructure** | Complete | Provider-neutral execution, audited extraction, mandatory review, reviewed snapshots, grounded synthesis, and safe Markdown export |
 
-v0.2.0 is infrastructure and report decoration, not clinical validation or a production literature copilot. The production LLM extractor and autonomous literature copilot remain future work.
+v0.2.0 is infrastructure and report decoration, not clinical validation or a production LLM extractor. v0.3.0 remains research infrastructure; its LLM layer does not alter deterministic scores, rankings, or role classification.
 
 ### Implemented in v0.2.0
 
-- immutable `EvidenceItem`, `ProvenanceStep`, and `RetrievalAttempt` contracts;
-- controlled vocabularies and deterministic serialization;
-- canonical JSON and SHA-256 content hashing;
-- intrinsic, semantic, and cross-field validation;
-- quoted-span requirements for literature-derived evidence;
-- provenance guards for computed and manually curated evidence;
-- derived-evidence lineage and cycle validation;
-- explicit evidence-family eligibility metadata;
-- immutable DuckDB evidence storage;
-- append-only provenance, audit events, and caller-driven revision links;
-- exact-duplicate detection and hash-collision protection;
-- Europe PMC retrieval, deterministic mock extraction, literal quotation
-  verification, evidence-family construction, exact-duplicate handling, and
-  post-ranking Markdown/HTML report cards;
-- independent recording of retrieval success, zero results, failure,
-  non-execution, and absent retrieval state; deterministic Parquet snapshots.
+- immutable evidence contracts, validation, provenance, storage, retrieval, and deterministic snapshots;
+
+### Implemented in v0.3.0
+
+- provider-neutral structured execution, grounded claim extraction, deterministic scientific-claim audit, and controlled `EvidenceItem` promotion;
+- mandatory human review, explicit reviewed-evidence persistence, target-level synthesis grounded only in reviewed snapshots, and safe idempotent Obsidian Markdown export.
+
+### v0.3.0 evidence-to-synthesis boundary
+
+The original deterministic pipeline still performs target classification and therapeutic-intent scoring. The separate v0.3.0 path moves source-linked observations through provider-neutral extraction, audit, mandatory human review, explicit persistence, immutable reviewed snapshots, and cited target-level synthesis. It creates no score, ranking, role, or treatment recommendation. Human approval permits controlled software promotion only; it is not scientific or clinical validation. Obsidian is an optional rendered destination, never a scientific source of truth.
+
+Run the fully offline synthetic demonstration:
+
+```bash
+python examples/llm/run_v030_mock_demo.py --output-dir /tmp/targetintel-v030-demo
+```
+
+See the [demo guide](examples/llm/README.md) and [v0.3.0 release notes](docs/releases/v0.3.0.md).
 
 ### Version roadmap
 
