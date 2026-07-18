@@ -1,0 +1,5 @@
+{
+  "target_identity": "B2M",
+  "context": "melanoma",
+  "evidence_item_ids": ["ev-a", "ev-b"]
+}
