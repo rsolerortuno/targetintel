@@ -1,0 +1,5 @@
+{
+  "exact": {"requested": "BRAF", "approved_symbol": "BRAF", "ensembl_gene_id": "ENSG00000157764"},
+  "unresolved": {"requested": "MISSING"},
+  "ambiguous": {"requested": "DUPLICATE"}
+}

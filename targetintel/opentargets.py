@@ -73,30 +73,26 @@ def run_graphql_query(
     Raises an informative error containing the HTTP response body when the
     request or GraphQL query fails.
     """
-    response = requests.post(
-        url,
-        json={
-            "query": query,
-            "variables": variables,
-        },
+    status_code, payload, response_text, _headers = post_graphql_payload(
+        query=query,
+        variables=variables,
+        url=url,
         timeout=timeout,
     )
 
-    try:
-        payload = response.json()
-    except ValueError:
-        payload = None
-
-    if not response.ok:
+    # Preserve the legacy `requests.Response.ok` success boundary.  The
+    # existing helper follows redirects by default, but injected callers may
+    # still return a 3xx response and historically received its valid payload.
+    if status_code >= 400:
         response_body = (
             payload
             if payload is not None
-            else response.text[:5000]
+            else response_text[:5000]
         )
 
         raise RuntimeError(
             "Open Targets request failed.\n"
-            f"HTTP status: {response.status_code}\n"
+            f"HTTP status: {status_code}\n"
             f"URL: {url}\n"
             f"Variables: {variables}\n"
             f"Response: {response_body}"
@@ -123,6 +119,32 @@ def run_graphql_query(
         )
 
     return data
+
+
+def post_graphql_payload(
+    query: str,
+    variables: dict[str, Any],
+    url: str = OPEN_TARGETS_GRAPHQL_URL,
+    timeout: int = 60,
+    *,
+    allow_redirects: bool = True,
+) -> tuple[int, dict[str, Any] | None, str, dict[str, str]]:
+    """Execute the shared low-level GraphQL HTTP operation.
+
+    The legacy helper keeps its historical redirect behaviour.  New ingestion
+    code passes the official endpoint and disables redirects explicitly.
+    """
+    response = requests.post(
+        url,
+        json={"query": query, "variables": variables},
+        timeout=timeout,
+        allow_redirects=allow_redirects,
+    )
+    try:
+        payload = response.json()
+    except ValueError:
+        payload = None
+    return response.status_code, payload, response.text, dict(response.headers)
 
 
 def fetch_associated_targets_page(

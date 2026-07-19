@@ -1,5 +1,9 @@
 """Tests for Open Targets payload conversion without network access."""
 
+from typing import Any
+
+import targetintel.opentargets as opentargets
+
 from targetintel.opentargets import (
     associated_targets_to_dataframe,
     scored_components_to_dict,
@@ -63,3 +67,16 @@ def test_associated_targets_payload_to_dataframe() -> None:
     assert df.iloc[0]["opentargets_score"] == 0.90
     assert df.iloc[1]["target_symbol"] == "CTLA4"
     assert set(df["disease_id"]) == {"MONDO_0005105"}
+
+
+def test_run_graphql_query_preserves_legacy_response_ok_boundary(monkeypatch: Any) -> None:
+    """The compatibility helper historically accepted all HTTP statuses <400."""
+    monkeypatch.setattr(
+        opentargets,
+        "post_graphql_payload",
+        lambda **_kwargs: (302, {"data": {"disease": {"id": "MONDO_0005105"}}}, "", {}),
+    )
+
+    result = opentargets.run_graphql_query("query { disease { id } }", {})
+
+    assert result == {"disease": {"id": "MONDO_0005105"}}

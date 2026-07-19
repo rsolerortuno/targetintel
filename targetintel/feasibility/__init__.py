@@ -23,6 +23,8 @@ from .validation import (
     validate_profile,
     validate_request,
 )
+from .opentargets_models import OpenTargetsFetchRequest, OpenTargetsFetchResult, OpenTargetsQueryPlan, OpenTargetsCoverageReport, OpenTargetsTargetRecord, OpenTargetsTargetResolution, OpenTargetsTransportResponse
+from .opentargets_ingestion import fetch_opentargets
 
 __all__ = [
     "AVAILABILITY_STATES", "FEASIBILITY_DIMENSIONS", "TARGET_IDENTIFIER_TYPES",
@@ -30,4 +32,5 @@ __all__ = [
     "TargetFeasibilityRequest", "ValidationError", "ValidationIssue",
     "require_valid_observation", "require_valid_profile", "require_valid_request",
     "validate_observation", "validate_profile", "validate_request",
+    "OpenTargetsFetchRequest", "OpenTargetsFetchResult", "OpenTargetsQueryPlan", "OpenTargetsCoverageReport", "OpenTargetsTargetRecord", "OpenTargetsTargetResolution", "OpenTargetsTransportResponse", "fetch_opentargets",
 ]

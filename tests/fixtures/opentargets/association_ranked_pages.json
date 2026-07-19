@@ -1,0 +1,4 @@
+{
+  "disease_id": "MONDO_0005105",
+  "pages": [{"count": 1, "rows": [{"score": 0.1, "target": {"id": "ENSG00000157764", "approvedSymbol": "BRAF"}}]}]
+}
