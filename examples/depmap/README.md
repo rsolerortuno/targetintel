@@ -67,3 +67,20 @@ python examples/depmap/run_dependency_benchmark.py \
   --policy tests/fixtures/depmap/benchmark/evaluation_policy.json \
   --output-dir /tmp/targetintel-dependency-benchmark
 ```
+
+## Dependency integration gate
+
+Issue 506 consumes that benchmark only through an explicit, offline gate. It
+writes an analysis-only candidate overlay and never changes production scores,
+ranks, defaults, or CLI behavior. The synthetic fixture is always blocked;
+human authorization is not emitted.
+
+```bash
+python examples/depmap/run_dependency_integration_gate.py \
+  --benchmark-dir /tmp/targetintel-dependency-benchmark \
+  --baseline-ranking tests/fixtures/depmap/benchmark/baseline_ranking.tsv \
+  --policy tests/fixtures/depmap/integration/integration_policy.json \
+  --context tests/fixtures/depmap/integration/context.json \
+  --evidence-scope synthetic_fixture \
+  --output-dir /tmp/targetintel-dependency-integration
+```

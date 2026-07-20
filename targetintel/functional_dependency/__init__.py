@@ -31,6 +31,13 @@ from .depmap_benchmark import (
     DependencyBenchmarkPolicy, evaluate_dependency_benchmark,
     load_baseline_ranking, write_dependency_benchmark_artifacts,
 )
+from .dependency_integration import (
+    DependencyAwareProfileCandidate, DependencyIntegrationError,
+    DependencyIntegrationPolicy, DependencyProfileAuthorization,
+    build_dependency_integration, select_dependency_profile,
+    validate_evidence_scope, validate_integration_state,
+    write_dependency_integration_artifacts,
+)
 
 __all__ = [
     "DepMapFileManifest",
@@ -65,4 +72,13 @@ __all__ = [
     "evaluate_dependency_benchmark",
     "load_baseline_ranking",
     "write_dependency_benchmark_artifacts",
+    "DependencyAwareProfileCandidate",
+    "DependencyIntegrationError",
+    "DependencyIntegrationPolicy",
+    "DependencyProfileAuthorization",
+    "build_dependency_integration",
+    "select_dependency_profile",
+    "validate_evidence_scope",
+    "validate_integration_state",
+    "write_dependency_integration_artifacts",
 ]
