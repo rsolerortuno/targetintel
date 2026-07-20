@@ -301,6 +301,7 @@ class DepMapReleaseManifest:
     def from_dict(cls, data: Mapping[str, Any]) -> "DepMapReleaseManifest":
         values = dict(data)
         supplied_id = values.pop("manifest_id", None)
+        values.setdefault("operational_metadata", None)
         values.pop("schema_fingerprint_ids", None)
         values.pop("unavailable_optional_roles", None)
         raw_files = values.get("file_manifests")

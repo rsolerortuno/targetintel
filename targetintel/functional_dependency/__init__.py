@@ -11,6 +11,10 @@ from .depmap_models import (
     DepMapSchemaFingerprint,
 )
 from .depmap_validation import DepMapManifestValidationResult, validate_local_release
+from .depmap_ingestion import (
+    DepMapIngestionError, DepMapIngestionRequest, DepMapIngestionSnapshot,
+    DepMapTargetRequest, ingest_local_release, parse_gene_label,
+)
 
 __all__ = [
     "DepMapFileManifest",
@@ -19,4 +23,10 @@ __all__ = [
     "DepMapReleaseManifest",
     "DepMapSchemaFingerprint",
     "validate_local_release",
+    "DepMapIngestionError",
+    "DepMapIngestionRequest",
+    "DepMapIngestionSnapshot",
+    "DepMapTargetRequest",
+    "ingest_local_release",
+    "parse_gene_label",
 ]
