@@ -51,14 +51,19 @@ def _header_matches(path: Path, file_format: str, fingerprint) -> bool:
     return all(column in header for column in fingerprint.canonical_required_columns)
 
 
-def validate_local_release(manifest: DepMapReleaseManifest, layout: DepMapLocalLayoutRequest, *, expected_release_identifier: str | None = None) -> DepMapManifestValidationResult:
+def validate_local_release(manifest: DepMapReleaseManifest, layout: DepMapLocalLayoutRequest, *, expected_release_identifier: str | None = None, source_root: Path | None = None) -> DepMapManifestValidationResult:
     """Validate only local small fixtures; this result never asserts gene coverage or biology."""
     if expected_release_identifier is not None and expected_release_identifier != manifest.release_identifier:
         return _result("release_mismatch", manifest, None, "explicit expected release identifier does not match manifest")
     if layout.release_directory != manifest.release_identifier:
         return _result("release_mismatch", manifest, None, "layout release directory does not match manifest release identifier")
+    root = (source_root or layout.local_release_root).resolve()
+    if not root.is_dir():
+        return _result("missing_file", manifest, None, "declared local source root is absent")
     for file_manifest in manifest.file_manifests:
-        path = layout.local_release_root / file_manifest.relative_filename
+        path = (root / file_manifest.relative_filename).resolve()
+        if root not in path.parents:
+            return _result("invalid_path", manifest, file_manifest.dataset_role, "declared local file escapes source root")
         if not path.is_file():
             return _result("missing_file", manifest, file_manifest.dataset_role, "declared local file is absent")
         if path.stat().st_size != file_manifest.expected_size_bytes:
