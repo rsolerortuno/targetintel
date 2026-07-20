@@ -1,0 +1,5 @@
+original_target_identifier	canonical_target_identity	baseline_rank	baseline_score	primary_intent	role	selected_state
+BRAF	symbol:BRAF|entrez:673	1	0.9	small_molecule	tumor_intrinsic_driver	selected
+NRAS	symbol:NRAS|entrez:4893	2	0.8	small_molecule	mechanism	selected
+PTEN	symbol:PTEN|entrez:5728	3	0.7	resistance_biomarker	biomarker	""
+CDK4	symbol:CDK4|entrez:1019	4	0.6	small_molecule	tumor_intrinsic_driver	""

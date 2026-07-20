@@ -26,6 +26,11 @@ from .target_universes import (
     TargetUniverse, TargetUniverseEntry, TargetUniverseFreezeManifest,
     freeze_universes,
 )
+from .depmap_benchmark import (
+    DependencyBenchmarkError, DependencyBenchmarkEvaluation,
+    DependencyBenchmarkPolicy, evaluate_dependency_benchmark,
+    load_baseline_ranking, write_dependency_benchmark_artifacts,
+)
 
 __all__ = [
     "DepMapFileManifest",
@@ -54,4 +59,10 @@ __all__ = [
     "TargetUniverseEntry",
     "TargetUniverseFreezeManifest",
     "freeze_universes",
+    "DependencyBenchmarkError",
+    "DependencyBenchmarkEvaluation",
+    "DependencyBenchmarkPolicy",
+    "evaluate_dependency_benchmark",
+    "load_baseline_ranking",
+    "write_dependency_benchmark_artifacts",
 ]

@@ -51,3 +51,19 @@ After full-matrix ingestion, freeze the benchmark, pre-DepMap discovery and
 background universes with `run_universe_freeze.py`. It writes only canonical
 universe metadata, overlap and leakage-audit artifacts; it never scores, ranks
 or profiles targets.
+
+## Analysis-only dependency benchmark
+
+Issue 505 compares an explicit unchanged baseline artifact with a dependency
+diagnostic order and a bounded within-band overlay. It is offline and analysis
+only: it never changes TargetIntel scores, ranks, roles, configuration, or
+selection. The fixture is synthetic and supports no melanoma finding.
+
+```bash
+python examples/depmap/run_dependency_benchmark.py \
+  --universe-dir /tmp/targetintel-depmap-universes \
+  --profiles-dir /tmp/targetintel-depmap-profiles \
+  --baseline-ranking tests/fixtures/depmap/benchmark/baseline_ranking.tsv \
+  --policy tests/fixtures/depmap/benchmark/evaluation_policy.json \
+  --output-dir /tmp/targetintel-dependency-benchmark
+```
