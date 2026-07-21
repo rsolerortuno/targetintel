@@ -1,0 +1,7 @@
+ModelID,OncotreeLineage,PrimaryDisease,Subtype
+ACH-001,Skin,Melanoma,Synthetic
+ACH-002,Skin,Melanoma,Synthetic
+ACH-003,Skin,Melanoma,Synthetic
+ACH-005,Lung,Synthetic,Synthetic
+ACH-006,Breast,Synthetic,Synthetic
+ACH-007,Liver,,Synthetic

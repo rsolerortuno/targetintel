@@ -84,3 +84,14 @@ python examples/depmap/run_dependency_integration_gate.py \
   --evidence-scope synthetic_fixture \
   --output-dir /tmp/targetintel-dependency-integration
 ```
+## v0.5.0 release closure
+
+The local-only closure runner orchestrates the isolated functional-dependency
+stages and never changes production ranking or creates a release. The compact
+fixture is deliberately blocked as synthetic evidence:
+
+```bash
+python examples/depmap/run_v0_5_release_closure.py \
+  --run-config tests/fixtures/depmap/release_closure/run_config.json \
+  --evidence-classification synthetic_fixture --output-dir /tmp/targetintel-v050-closure
+```

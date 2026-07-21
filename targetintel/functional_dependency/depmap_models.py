@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from hashlib import sha256
 import json
 from pathlib import Path, PurePosixPath
+import re
 from types import MappingProxyType
 from typing import Any, Mapping
 from urllib.parse import urlparse
@@ -72,15 +73,26 @@ def _safe_release_directory(value: str) -> bool:
 
 
 def _forbidden_nested(value: Any) -> bool:
-    forbidden = ("credential", "password", "secret", "token", "authorization", "reasoning", "thinking", "chain_of_thought")
+    # Keys, rather than ordinary domain prose, are controlled.  In particular
+    # legitimate limitations may mention future human authorization without
+    # becoming a credential-bearing artifact.
+    forbidden = frozenset({"credential", "credentials", "password", "secret", "token", "api_key", "apikey", "access_key", "access_token", "private_key", "reasoning", "hidden_reasoning", "thinking", "chain_of_thought"})
     if isinstance(value, Mapping):
         return any(
-            _forbidden_nested(str(key)) or _forbidden_nested(item)
+            str(key).casefold() in forbidden or _forbidden_nested(item)
             for key, item in value.items()
         )
     if isinstance(value, (tuple, list)):
         return any(_forbidden_nested(item) for item in value)
-    return isinstance(value, str) and any(marker in value.casefold() for marker in forbidden)
+    if not isinstance(value, str):
+        return False
+    # Detect structured secret/reasoning disclosures, while allowing normal
+    # domain language such as "future authorization is required".
+    return bool(re.search(
+        r"(?:authorization\s*:\s*bearer\b|(?:secret|token|password|api[_-]?key|access[_-]?token)\s*[:=]|(?:chain_of_thought|hidden_reasoning)\s*:|-----BEGIN(?: [A-Z]+)? PRIVATE KEY-----)",
+        value,
+        flags=re.IGNORECASE,
+    ))
 
 
 def _require(condition: bool, message: str) -> None:

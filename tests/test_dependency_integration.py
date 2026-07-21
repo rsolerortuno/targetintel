@@ -139,3 +139,32 @@ def test_gate_rejects_overlay_recipe_divergence(tmp_path):
     result = build_dependency_integration(benchmark_dir, BASELINE, policy, {"context_identity": "melanoma_anti_pd1:v1"}, "local_real_data")
     assert result["decision"]["decision_state"] == "blocked_incompatible_inputs"
     assert "bounded_overlay_recipe_mismatch" in result["compatibility"]["reasons"]
+
+
+def test_gate_distinguishes_insufficient_evidence_from_policy_failure(tmp_path):
+    """Coverage and eligible-target shortages retain the controlled evidence state."""
+    benchmark_dir = tmp_path / "benchmark"; benchmark_dir.mkdir()
+    _write_issue505_fixture(benchmark_dir)
+    (benchmark_dir / "benchmark_coverage.json").write_text(json.dumps({
+        "total_benchmark_targets": 4, "profiled_target_count": 0,
+    }))
+    policy = DependencyIntegrationPolicy.from_dict(json.loads(FIXTURE.read_text()))
+    result = build_dependency_integration(
+        benchmark_dir, BASELINE, policy, {"context_identity": "melanoma_anti_pd1:v1"}, "local_real_data",
+    )
+    assert result["decision"]["decision_state"] == "blocked_insufficient_evidence"
+
+
+def test_bounded_overlay_permits_a_genuine_within_band_reorder() -> None:
+    """A lower baseline target may move only inside its fixed rank band."""
+    from targetintel.functional_dependency.depmap_benchmark import _rank
+    rows = [
+        {"canonical_identity": "top", "baseline_rank": 1, "dependency_signal": .1},
+        {"canonical_identity": "lower", "baseline_rank": 2, "dependency_signal": .9},
+        {"canonical_identity": "next", "baseline_rank": 3, "dependency_signal": .8},
+        {"canonical_identity": "last", "baseline_rank": 4, "dependency_signal": .2},
+    ]
+    _rank(rows, "bounded_overlay_rank", overlay=True, band_size=2)
+    assert rows[1]["bounded_overlay_rank"] == 1
+    assert rows[0]["bounded_overlay_rank"] == 2
+    assert all((row["baseline_rank"] - 1) // 2 == (row["bounded_overlay_rank"] - 1) // 2 for row in rows)

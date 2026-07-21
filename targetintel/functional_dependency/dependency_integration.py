@@ -325,6 +325,7 @@ def build_dependency_integration(benchmark_dir: Path | str, baseline_ranking: Pa
     mandatory_bad = any(row["mandatory"] and row["result"] != "pass" for row in criteria)
     if not compatible: status = "blocked_incompatible_inputs"
     elif evidence_scope == "synthetic_fixture": status = "blocked_fixture_evidence"
+    elif any(row["criterion_id"] in {"benchmark_coverage", "holdout_coverage", "eligible_target_count", "permitted_missing_profile_fraction"} and row["mandatory"] and row["result"] != "pass" for row in criteria): status = "blocked_insufficient_evidence"
     elif mandatory_bad: status = "blocked_policy_failure"
     else: status = "eligible_for_human_activation"
     candidate = DependencyAwareProfileCandidate(FORMAT_VERSION, "dependency_aware_melanoma_anti_pd1_candidate_v1", context["context_identity"], baseline_id, str(manifest["dependency_profile_run_id"]), str(manifest["candidate_ranking_ids"]["bounded_overlay"]), policy.policy_id, policy.permitted_candidate_construction_method, policy.fixed_rank_band_size, policy.tie_handling_rule, policy.minimum_dependency_component_count, policy.missing_profile_fallback, "dependency_aware_melanoma_anti_pd1_candidate_v1", status, ("Experimental analysis-only candidate; it is not clinically validated.", "Explicit future human authorization is required."))

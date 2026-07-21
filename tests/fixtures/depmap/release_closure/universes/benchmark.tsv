@@ -1,0 +1,5 @@
+original_gene_symbol	canonical_identity	benchmark_class	resistance_axes	expected_qualitative_behaviour	role	evidence_source_key	curation_rationale	partition	curation_version	entry_limitations
+BRAF	symbol:BRAF|entrez:673	known_positive	tumor_intrinsic_driver	known curated melanoma driver control	target	internal:benchmark-v1	Existing internal benchmark target.	development	v1	Internal curation only
+NRAS	symbol:NRAS|entrez:4893	challenging_control	melanoma_plasticity	context-dependent curated control	mechanism	internal:benchmark-v1	Existing internal benchmark target.	holdout	v1	Internal curation only
+PTEN	symbol:PTEN|entrez:5728	biomarker_not_intervention_target	antigen_presentation_loss	biomarker or mechanism control	biomarker	internal:benchmark-v1	Existing internal benchmark target.	development	v1	Internal curation only
+TP53	symbol:TP53|entrez:7157	negative_control	other_unresolved	negative direct intervention control	mechanism	internal:benchmark-v1	Existing internal benchmark target.	holdout	v1	Internal curation only

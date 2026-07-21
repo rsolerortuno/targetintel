@@ -1,0 +1,4 @@
+original_gene_symbol	canonical_identity	source_class	source_record_id	source_dataset_version	inclusion_rule	resistance_axes	role_annotation	resolution_status	inclusion_status	rejection_reason	limitations
+BRAF	symbol:BRAF|entrez:673	resistance_axis	fixture:axis:BRAF	fixture-v1	exact curated axis source	tumor_intrinsic_driver	tumor intrinsic candidate	resolved_exact	included		Synthetic fixture
+NRAS	symbol:NRAS|entrez:4893	resistance_axis	fixture:axis:NRAS	fixture-v1	exact curated axis source	melanoma_plasticity	tumor intrinsic candidate	resolved_exact	included		Synthetic fixture
+UNRES	unresolved:UNRES	resistance_axis	fixture:axis:UNRES	fixture-v1	exact curated axis source	other_unresolved		unresolved	unresolved	No exact canonical identity	Synthetic fixture

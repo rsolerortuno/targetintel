@@ -38,6 +38,11 @@ from .dependency_integration import (
     validate_evidence_scope, validate_integration_state,
     write_dependency_integration_artifacts,
 )
+from .release_closure import (
+    ReleaseClosureError, V050ReleaseClosurePolicy, V050ReleaseRunConfiguration,
+    compare_release_runs, preflight_release, run_release_closure, validate_evidence_classification,
+    validate_release_state,
+)
 
 __all__ = [
     "DepMapFileManifest",
@@ -81,4 +86,12 @@ __all__ = [
     "validate_evidence_scope",
     "validate_integration_state",
     "write_dependency_integration_artifacts",
+    "ReleaseClosureError",
+    "V050ReleaseClosurePolicy",
+    "V050ReleaseRunConfiguration",
+    "preflight_release",
+    "compare_release_runs",
+    "run_release_closure",
+    "validate_evidence_classification",
+    "validate_release_state",
 ]
