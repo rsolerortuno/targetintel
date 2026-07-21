@@ -40,11 +40,11 @@ python examples/llm/run_v030_mock_demo.py --output-dir /tmp/targetintel-v030-dem
 
 See the [demo guide](examples/llm/README.md) and [v0.3.0 release notes](docs/releases/v0.3.0.md).
 
-### Version roadmap
+### Version roadmap and current release
 
-v0.2.0 Common Evidence Layer; v0.3.0 Grounded Literature Copilot and provider-agnostic LLM integration; v0.4.0 Target feasibility and expanded Open Targets integration; v0.5.0 DepMap/CRISPR functional dependency; v0.6.0 Single-cell and spatial context; v0.7.0 Clinical-response research model; v0.8.0 De novo target discovery and knowledge graph; v1.0.0 Multitumor target-intelligence platform.
+v0.5.0 is complete as a reproducible DepMap/CRISPR research-preview workflow: 56 benchmark targets, 331 discovery targets, 18,531 background genes, 100% benchmark and holdout coverage, a preserved 300-target baseline, disabled automatic activation, and zero differing scientific artifacts across two independent runs.
 
-See the [TargetIntel-IO 2.0 roadmap](docs/ROADMAP_2_0.md), the [v0.2.0 evidence-layer specification](docs/specs/v0.2.0_evidence_layer.md), and the [v0.5.0 DepMap release notes](docs/releases/v0.5.0.md).
+Roadmap: v0.2.0 Common Evidence Layer; v0.3.0 Grounded Literature Copilot and provider-agnostic LLM integration; v0.4.0 Target feasibility and expanded Open Targets integration; v0.6.0 Single-cell and spatial context; v0.7.0 Clinical-response research model; v0.8.0 De novo target discovery and knowledge graph; v1.0.0 Multitumor target-intelligence platform. See the [v0.5.0 release notes](docs/releases/v0.5.0.md) and [repository-safe evidence](docs/releases/evidence/v0.5.0/).
 
 ## Why this project exists
 
@@ -75,7 +75,7 @@ flowchart TD
     R3 --> REP
 
     LIT[Scientific literature] -->|v0.2 complete| EI[Normalized EvidenceItems]
-    DEP[DepMap / CRISPR] -->|v0.5 complete| EI
+    DEP[DepMap / CRISPR] -->|v0.5 complete| FD[Dependency profiles and bounded overlay] --> REP
     SC[Single-cell / spatial] -. roadmap .-> EI
     CLIN[Clinical cohorts] -. roadmap .-> EI
     EI --> VAL[Deterministic validation]
@@ -325,7 +325,7 @@ targetintel/evidence/ Typed evidence contracts, validation, immutable storage
 scripts/              Pipeline and snapshot-management commands
 tests/                Unit, integration, and regression tests
 examples/             Versioned reports, figures, benchmark, sensitivity
-docs/                 Architecture, roadmap, evidence-layer specifications
+docs/                 Architecture, roadmap, specifications, release evidence
 data/                 Local cached and processed data; not versioned
 results/              Generated local outputs; not versioned
 ```
@@ -340,7 +340,7 @@ All generated hypotheses require independent experimental, translational, and cl
 
 ## Data governance
 
-The current workflow uses public data and curated public-domain biological knowledge, principally the Open Targets Platform GraphQL API. No confidential, proprietary, company-internal, or identifiable patient data is included. Generated databases, local caches, and outputs are excluded from version control by default.
+The current workflow uses public data and curated public-domain biological knowledge, principally Open Targets Platform and DepMap Public releases. No confidential, proprietary, company-internal, or identifiable patient data is included. Source matrices, generated databases, local caches, and complete run directories remain outside version control; only portable, sanitized release evidence and checksums are committed.
 
 ## Citation
 ```text
