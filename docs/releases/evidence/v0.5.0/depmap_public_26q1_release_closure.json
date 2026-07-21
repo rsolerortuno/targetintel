@@ -1,0 +1,78 @@
+{
+  "cohort": {
+    "acral_sensitivity_model_count": 4,
+    "drug_adapted_models_excluded": 7,
+    "primary_context": "cutaneous_melanoma_core",
+    "primary_model_count": 56
+  },
+  "configuration": {
+    "bundle_inventory_sha256": "0103d655c1da5c72b4c36fb7c5cc3c34d901ee0f17385a8d4d5d977579f3c0e1",
+    "configuration_id": "v050rc_fe68644624acd4b72aaf289baa9380c07f30d26c3271923ba81540f9b91e37b6"
+  },
+  "context_identity": "melanoma_anti_pd1:v1",
+  "coverage": {
+    "benchmark": 1.0,
+    "holdout": 1.0
+  },
+  "data_release": {
+    "evidence_classification": "local_real_public_release",
+    "release_identifier": "DepMap_Public_26Q1",
+    "release_manifest_id": "dmrm_08d15741ac2297df953346ff257dec05feb0b754a62ae6a9f56573e11801c5b1"
+  },
+  "evidence_format_version": "targetintel-v0.5.0-real-release-v1",
+  "execution": {
+    "baseline_preserved": true,
+    "baseline_ranking_id": "blr_20cb7436b457d916d803d68f8335784291b8a36589b91605ec55291259d5a804",
+    "candidate_activation_enabled": false,
+    "compatible": true,
+    "completed_stages": [
+      "ingestion_full",
+      "ingestion_subset",
+      "universes",
+      "profiles",
+      "benchmark",
+      "integration"
+    ],
+    "human_review_required": true,
+    "profile_run_id": "dmpr_6235f463ba983887eaaafaee391a220fd96d6a64ac8fc1e0dc8348e0bc345ab4",
+    "release_state": "ready_research_preview_human_review",
+    "run_labels": [
+      "real-v6-run-a",
+      "real-v6-run-b"
+    ]
+  },
+  "module_version": "v0.5.0",
+  "repository_commit": "d6e7a5748b7c33eb24e11fc4c44dc81055a14664",
+  "reproducibility": {
+    "checksum_inventories_valid": {
+      "first": true,
+      "second": true
+    },
+    "closure_scientific_identity": "v050closure_e57fa135ff266078d2170bf2a34df094f7888e7ce6002783c75f6a583690a3a4",
+    "closure_summary_document_sha256": "f2de47ebdab61c082063415c882b024f8eae3c828736509019c4cf5ac3a1aaf9",
+    "comparison_document_sha256": "5a6e42403dd95df69f6a3225a2d5065de8c520120cbde07ecb7dd493e83da374",
+    "differing_scientific_artifact_count": 0,
+    "external_run_a_vs_run_b": "reproducible",
+    "run_a_internal": "reproducible",
+    "run_b_internal": "reproducible"
+  },
+  "scientific_boundary": {
+    "automatic_candidate_activation": false,
+    "clinical_validation": false,
+    "limitations": [
+      "DepMap cell-line dependency is not clinical anti-PD-1 response evidence.",
+      "The primary context is a reviewed cutaneous melanoma cell-line cohort.",
+      "The dependency-aware candidate remains optional and requires separate human review.",
+      "Source matrices and machine-local paths are not distributed in the repository."
+    ],
+    "production_ranking_replaced": false,
+    "purpose": "Research-only dependency-context assessment and target-prioritization support."
+  },
+  "universe": {
+    "background_count": 18531,
+    "benchmark_count": 56,
+    "discovery_count": 331,
+    "unresolved_count": 0,
+    "unresolved_fraction": 0.0
+  }
+}

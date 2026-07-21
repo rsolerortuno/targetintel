@@ -1,0 +1,86 @@
+{
+  "bundle_name": "DepMap_Public_26Q1_real_v6",
+  "configuration_file": "real_run_config.json",
+  "files": [
+    {
+      "bytes": 26298,
+      "filename": "baseline_ranking_antibody_io.tsv",
+      "sha256": "20cb7436b457d916d803d68f8335784291b8a36589b91605ec55291259d5a804"
+    },
+    {
+      "bytes": 3116,
+      "filename": "benchmark_identity_reconciliation.tsv",
+      "sha256": "96c42a5bc992f368836349cca4af65562c8cbd2e7bb257bb9099efb8e523e8fd"
+    },
+    {
+      "bytes": 1990,
+      "filename": "benchmark_policy_real.json",
+      "sha256": "bb43c58743d011f9c97404ae9224a3f7f7da4df4a540c9df91c72e0827774f27"
+    },
+    {
+      "bytes": 22439,
+      "filename": "benchmark_v1.tsv",
+      "sha256": "4f2281cde72b68ac39ddc7c237717147c3f5fb4a273e8b3cb7c1b1c221295cb5"
+    },
+    {
+      "bytes": 950,
+      "filename": "discovery_policy_real.json",
+      "sha256": "0e8155e4200ae6848f153d5521b3cbcc815861151650ff8b3a19c1aaebe628f8"
+    },
+    {
+      "bytes": 132290,
+      "filename": "discovery_sources_real.tsv",
+      "sha256": "5591af1a1d8f41027deea021b5765fac437dd674e27d7b73efb1c7f034c88e6d"
+    },
+    {
+      "bytes": 49,
+      "filename": "integration_context_real.json",
+      "sha256": "4de3401556e6bfec309e31f4d0f9d02059ca5a72d4c6dbd8256b9b89ec562bcc"
+    },
+    {
+      "bytes": 1248,
+      "filename": "integration_policy_real.json",
+      "sha256": "79c06d7c953d0731f5bf64b3cbc808286f9f58b77865655824c4ed2b35e1dd39"
+    },
+    {
+      "bytes": 2190,
+      "filename": "preparation_provenance.json",
+      "sha256": "6fdef860518d55c2eb517dcebd50be1797092a7648318c121e58b852c1edc4df"
+    },
+    {
+      "bytes": 563,
+      "filename": "profile_context_real.json",
+      "sha256": "a80400a2d426d5806135b1e5c6368439b4c76b34dbb4914d544d6a41ced16d7e"
+    },
+    {
+      "bytes": 763,
+      "filename": "profile_policy_real.json",
+      "sha256": "3c0ede70b05beb729858477e585166eba9fe9e99ffe176ae597505869a81a85b"
+    },
+    {
+      "bytes": 1543,
+      "filename": "real_run_config.json",
+      "sha256": "f271eab2a6d65bc080a906209a063a9bd6a537367441fb8ca06ea343f3123e50"
+    },
+    {
+      "bytes": 6921,
+      "filename": "release_manifest_26Q1.json",
+      "sha256": "204ebaf20755698d90ae879cff86e48630fcf98550ec587000cb63bbee412ad2"
+    },
+    {
+      "bytes": 919,
+      "filename": "release_policy_real.json",
+      "sha256": "675727417ae33d337fb8837bef9bdd8ae03745e63f676330cc3cf41fde24f8f8"
+    },
+    {
+      "bytes": 4274,
+      "filename": "target_subset.tsv",
+      "sha256": "19e483347ad22057c93a013b7137686caffcae7fd5b155082d5a5961ab67ea05"
+    },
+    {
+      "bytes": 241,
+      "filename": "universe_context_real.json",
+      "sha256": "2d2e1b7bbd6fe2bb74357a2c0b48fce3f8d6b564f1e6d2c8e7687df201cecf63"
+    }
+  ]
+}

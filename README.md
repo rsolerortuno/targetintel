@@ -44,7 +44,7 @@ See the [demo guide](examples/llm/README.md) and [v0.3.0 release notes](docs/rel
 
 v0.2.0 Common Evidence Layer; v0.3.0 Grounded Literature Copilot and provider-agnostic LLM integration; v0.4.0 Target feasibility and expanded Open Targets integration; v0.5.0 DepMap/CRISPR functional dependency; v0.6.0 Single-cell and spatial context; v0.7.0 Clinical-response research model; v0.8.0 De novo target discovery and knowledge graph; v1.0.0 Multitumor target-intelligence platform.
 
-See the [TargetIntel-IO 2.0 roadmap](docs/ROADMAP_2_0.md) and the [v0.2.0 evidence-layer specification](docs/specs/v0.2.0_evidence_layer.md).
+See the [TargetIntel-IO 2.0 roadmap](docs/ROADMAP_2_0.md), the [v0.2.0 evidence-layer specification](docs/specs/v0.2.0_evidence_layer.md), and the [v0.5.0 DepMap release notes](docs/releases/v0.5.0.md).
 
 ## Why this project exists
 
@@ -75,7 +75,7 @@ flowchart TD
     R3 --> REP
 
     LIT[Scientific literature] -->|v0.2 complete| EI[Normalized EvidenceItems]
-    DEP[DepMap / CRISPR] -. roadmap .-> EI
+    DEP[DepMap / CRISPR] -->|v0.5 complete| EI
     SC[Single-cell / spatial] -. roadmap .-> EI
     CLIN[Clinical cohorts] -. roadmap .-> EI
     EI --> VAL[Deterministic validation]
@@ -291,7 +291,7 @@ The project includes:
 - a Conda environment definition;
 - an exact Python 3.11 lockfile with package hashes;
 - deterministic ranking and tie-breaking;
-- versioned benchmark and sensitivity snapshots;
+- versioned benchmark, sensitivity, and DepMap release-closure evidence;
 - GitHub Actions continuous integration;
 - offline unit and regression tests;
 - immutable evidence storage and Parquet verification;
@@ -334,7 +334,7 @@ results/              Generated local outputs; not versioned
 
 TargetIntel-IO is a hypothesis-generation and target-triage framework. It does not provide clinical recommendations, validated therapeutic targets, qualified biomarkers, causal biological proof, a diagnostic system, patient-level treatment predictions, or medical advice.
 
-The current deterministic implementation focuses on anti-PD-1-resistant melanoma. v0.2.0 evidence reporting is optional, read-only, and post-ranking; it cannot alter scores, roles, rankings, benchmark results, or sensitivity outputs. Production LLM extraction and autonomous literature copilot behavior, DepMap integration, single-cell/spatial analysis, patient-response modelling, and knowledge-graph inference remain future work.
+The current deterministic implementation focuses on anti-PD-1-resistant melanoma. v0.2.0 evidence reporting remains optional and read-only. v0.5.0 adds reproducible DepMap/CRISPR dependency profiling as an explanatory post-ranking layer: the production baseline remains preserved and candidate activation requires separate human review. Production LLM extraction, single-cell/spatial integration, patient-response modelling, and knowledge-graph inference remain future work.
 
 All generated hypotheses require independent experimental, translational, and clinical validation.
 
