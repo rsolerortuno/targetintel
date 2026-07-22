@@ -22,6 +22,11 @@ from targetintel.feasibility.presentation import (
     make_feasibility_report_section,
     render_feasibility_html,
 )
+from targetintel.functional_dependency.presentation import (
+    DependencyPresentationError,
+    render_dependency_html,
+)
+from targetintel.functional_dependency.report_contract import DependencyReportEvidence
 
 
 DEFAULT_HTML_REPORT_DIR = Path("results/html_reports")
@@ -374,6 +379,7 @@ def make_target_html_report(
     evidence_card: EvidenceCard | None = None,
     feasibility_annotations: tuple[object, ...] | list[object] | None = None,
     feasibility_target_identifier_type: str | None = None,
+    dependency_evidence: DependencyReportEvidence | None = None,
 ) -> str:
     """
     Generate one standalone HTML target report.
@@ -401,6 +407,13 @@ def make_target_html_report(
             annotations=feasibility_annotations,
         ))
     feasibility_suffix = f"\n\n{feasibility_html}" if feasibility_html else ""
+    dependency_suffix = ""
+    if dependency_evidence is not None:
+        if not isinstance(dependency_evidence, DependencyReportEvidence):
+            raise DependencyPresentationError("invalid_dependency_report_evidence")
+        if dependency_evidence.gene_symbol != symbol:
+            raise DependencyPresentationError("dependency_evidence_target_mismatch")
+        dependency_suffix = f"\n\n{render_dependency_html(dependency_evidence)}"
 
     html = f"""<!doctype html>
 <html lang="en">
@@ -443,7 +456,7 @@ def make_target_html_report(
     </div>
 </section>
 
-{_make_evidence_html(evidence_card)}{feasibility_suffix}
+{_make_evidence_html(evidence_card)}{feasibility_suffix}{dependency_suffix}
 
 <section class="card">
     <h2>Stable TargetIntel-IO classification</h2>
@@ -588,6 +601,7 @@ def write_target_html_report(
     evidence_card: EvidenceCard | None = None,
     feasibility_annotations: tuple[object, ...] | list[object] | None = None,
     feasibility_target_identifier_type: str | None = None,
+    dependency_evidence: DependencyReportEvidence | None = None,
 ) -> Path:
     """
     Write one standalone HTML report.
@@ -603,6 +617,7 @@ def write_target_html_report(
             row, evidence_card=evidence_card,
             feasibility_annotations=feasibility_annotations,
             feasibility_target_identifier_type=feasibility_target_identifier_type,
+            dependency_evidence=dependency_evidence,
         ),
         encoding="utf-8",
     )
@@ -779,6 +794,7 @@ def write_top_html_reports(
     evidence_cards: Mapping[str, EvidenceCard] | None = None,
     feasibility_annotations: Mapping[str, tuple[object, ...] | list[object]] | None = None,
     feasibility_target_identifier_type: str | None = None,
+    dependency_evidence_by_symbol: Mapping[str, DependencyReportEvidence] | None = None,
 ) -> list[Path]:
     """
     Write HTML reports for the union of top-N targets across all modes.
@@ -828,6 +844,7 @@ def write_top_html_reports(
             evidence_card=(evidence_cards or {}).get(str(row["target_symbol"])),
             feasibility_annotations=target_annotations,
             feasibility_target_identifier_type=feasibility_target_identifier_type,
+            dependency_evidence=(dependency_evidence_by_symbol or {}).get(str(row["target_symbol"])),
         ))
 
     index_path = write_html_index(
